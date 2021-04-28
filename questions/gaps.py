@@ -16,6 +16,13 @@ def main():
 
     kw_extractor = KeyBERT('distilbert-base-nli-mean-tokens')
     keywords = kw_extractor.extract_keywords(text, stop_words='english')
-    print("Keywords of article", keywords)
+    
+    #print("Keywords of article", keywords)
+    
+    for word in keywords:
+        text = text.replace(word[0], '___')
+        text = text.replace(word[0].capitalize(), '___')
+    
+    print(text)
 
 main()
