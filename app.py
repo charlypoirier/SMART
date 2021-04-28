@@ -9,6 +9,7 @@ def main():
     with open(filename, 'r') as file:
         text = file.read()
         print(text)
+        # Call a module?
 
 # Guard preventing this script to be run more
 # than once when being imported from other scripts
