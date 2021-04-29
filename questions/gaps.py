@@ -10,7 +10,7 @@ print(unmasker("Oxygen is the [MASK] element with atomic number 8."))
 
 def main():
     if (len(sys.argv) != 2):
-        print('Usage: python3 app.py gaps_input.txt')
+        print('Usage: python3 questions/app.py input.txt')
         exit(1)
     filename = sys.argv[1]
     text = ""
