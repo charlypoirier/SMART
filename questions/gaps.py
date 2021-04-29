@@ -1,6 +1,12 @@
 #!/usr/bin/python3
 import sys
+import os
 from keybert import KeyBERT
+import gensim
+from transformers import pipeline
+
+unmasker = pipeline('fill-mask', model='bert-base-uncased')
+print(unmasker("Oxygen is the [MASK] element with atomic number 8."))
 
 def main():
     if (len(sys.argv) != 2):
@@ -22,7 +28,8 @@ def main():
     for word in keywords:
         text = text.replace(word[0], '___')
         text = text.replace(word[0].capitalize(), '___')
-    
+
+     
     print(text)
 
 main()
