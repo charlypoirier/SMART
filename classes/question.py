@@ -1,5 +1,5 @@
 class Question:
-    
+
     def __init__(self, stem, options, answer):
         self.stem = stem        # What color is the sky?
         self.options = options  # ["Blue", "Green", "Red"]
