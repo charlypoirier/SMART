@@ -11,19 +11,30 @@ with open(filename, 'r') as file:
     print(text)
     # Call a module?
 
-nlp = spacy.load('en_core_web_sm')
+nlp = spacy.load('en_core_web_trf')
 
 #Analyse text
 doc = nlp(text)
 
 keywords = []
+distractors = {}
 # Display entities and build keywords list
-for entities in doc.ents:
-    print(entities.text, " -- " ,entities.label_ ," -- ", spacy.explain(entities.label_))
-    keywords.append(entities.text)
+for ent in doc.ents:
+    print(ent.text, " -- " ,ent.label_ ," -- ", spacy.explain(ent.label_))
+    keywords.append(ent.text)
+    #if (ent.label_ == "CARDINAL"):
+    #    keywords.append(ent.text)
+    #    distractors[ent.text] = [1,2,3]
+    #if (ent.label_ == "ORDINAL"):
+    #    keywords.append(ent.text)
+    #    distractors[ent.text] = ["first", "second", "third"]
 
 print(keywords)
+print(distractors)
+print('\n')
+
 for word in keywords:
-        text = text.replace(word, '___')
+        #rp = (str(distractors[word]))
+        text = text.replace(word, '__')
 
 print(text)
