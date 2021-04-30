@@ -27,7 +27,7 @@ def replace_adjectives_with_antonyms(sentence):
     document = nlp(sentence)
     for token in document:
         if token.pos_ == "ADJ":
-            synonym = random.choice(dictionary.synonym(token.text))
+            synonym = random.choice(dictionary.antonym(token.text))
             sentence = sentence.replace(token.text, synonym)
     return sentence
 
