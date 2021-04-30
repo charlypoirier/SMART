@@ -70,6 +70,45 @@ def bert_sentences(text, keywords):
                 print(item["token_str"])
             print("\n\n")
 
+def bert_tags():
+
+    # Text with a single mask
+    text = "[MASK] are small mammals in the family Leporidae (along with the hare) of the order Lagomorpha (along with the pika). Oryctolagus cuniculus includes the European rabbit species and its descendants, the world's 305 breeds[1] of domestic rabbit. Sylvilagus includes 13 wild rabbit species, among them the seven types of cottontail. The European rabbit, which has been introduced on every continent except Antarctica, is familiar throughout the world as a wild prey animal and as a domesticated form of livestock and pet. With its widespread effect on ecologies and cultures, the rabbit (or bunny) is, in many areas of the world, a part of daily life—as food, clothing, a companion and a source of artistic inspiration."
+
+    nlp = spacy.load('en_core_web_sm')
+
+    pos  = text.find("[MASK]")
+    print("Position of keywords :" , pos)
+    
+    # unmask
+    usent = unmasker(text)
+    
+    #doc = nlp(usent)
+    #for tok in doc:
+    #    print(tok.text_, " ",tok.tag_)
+
+    print(usent)
+    # print unmasked words
+    for item in usent:
+        text = item["sequence"]    
+        doc = nlp(text)
+
+        un_keyword = item["token_str"]
+        un_pos = text.find(str(un_keyword))
+
+
+        for token in doc:
+            #print(token.text, ' -> ', token.pos_)
+            if(token.text == un_keyword):
+                print("Unmasked keyword found : ", token.text)
+                print(" is of type :", token.pos_, "(", spacy.explain(token.pos_), ")")
+                break
+
+        print("-----------", item["token_str"] ,'\n')
+    
+    print("\n\n")
+
+
 def main():
     if (len(sys.argv) !=2):
         print('Usage: python3 app.py gaps_input.txt ')
@@ -112,7 +151,8 @@ def main():
         print("\nKeywords of article", n_keywords, '\n')
 
 
-    bert_sentences(text, n_keywords)
+    #bert_sentences(text, n_keywords)
+    bert_tags()
 
     for word in n_keywords:
         #find_distractors(word)
