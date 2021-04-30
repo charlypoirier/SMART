@@ -1,9 +1,9 @@
 class Question:
     
     def __init__(self, stem, options, answer):
-        self.stem = stem
-        self.options = options
-        self.answer = answer
+        self.stem = stem        # What color is the sky?
+        self.options = options  # ["Blue", "Green", "Red"]
+        self.answer = answer    # 0
 
     def to_aiken(self):
         aiken = self.stem + "\n"
