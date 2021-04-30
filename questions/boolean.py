@@ -1,20 +1,18 @@
 """
 Boolean questions
-1) Negate the sentence
-2) Replace an adjective with its synonym or antonym (https://pypi.org/project/spacy-wordnet/)
-3) Replace pronouns with subject from last sentence
-4) Extract subject-verb-complement
+1) Make a sentence positive/negative
+2) Replace adjectives with their synonym/antonym
+3) Replace pronouns with corresponding nouns
 """
 
 import random
 import spacy
-from questions.Question import Question
+from classes.question import Question
 from PyDictionary import PyDictionary
-dictionary=PyDictionary()
 
 # Global variables
 nlp = spacy.load('en_core_web_sm')
-
+dictionary = PyDictionary()
 
 def replace_adjectives_with_synonyms(sentence):
     document = nlp(sentence)
@@ -24,7 +22,6 @@ def replace_adjectives_with_synonyms(sentence):
             sentence = sentence.replace(token.text, synonym)
     return sentence
 
-
 def replace_adjectives_with_antonyms(sentence):
     document = nlp(sentence)
     for token in document:
@@ -32,7 +29,6 @@ def replace_adjectives_with_antonyms(sentence):
             antonym = random.choice(dictionary.antonym(token.text))
             sentence = sentence.replace(token.text, antonym)
     return sentence
-
 
 def negate_present_aux_in_a_sentence(sentence_nlp_to_negate):
     new_sentence = ""
@@ -42,7 +38,6 @@ def negate_present_aux_in_a_sentence(sentence_nlp_to_negate):
         else:
             new_sentence += token.text_with_ws
     return new_sentence
-
 
 def negate_present_verb_in_a_sentence(sentence_nlp_to_negate):
     new_sentence = ""
@@ -58,17 +53,23 @@ def negate_present_verb_in_a_sentence(sentence_nlp_to_negate):
             new_sentence += token.text_with_ws
     return new_sentence
 
-
 def generate(text):
-    nlp = spacy.load("en_core_web_sm")
-    document = nlp(text)
+    """
+    Generate and return a set of
+    boolean questions.
+    """
+    document  = nlp(text)
     sentences = document.sents
     questions = set()
+
     for sentence in sentences:
-        # Replace adjectives with their synonyms
-        new_sentence = replace_adjectives_with_synonyms(sentence.text)
-        # Add the question to the set
-        question = Question(new_sentence, "True", ["False"])
+        if bool(random.getrandbits(1)):
+            sentence = replace_adjectives_with_synonyms(sentence.text)
+            answer = True
+        else:
+            sentence = replace_adjectives_with_antonyms(sentence.text)
+            answer = False
+        question = Question(sentence, ["True", "False"], int(not answer))
         questions.add(question)
 
     return questions
