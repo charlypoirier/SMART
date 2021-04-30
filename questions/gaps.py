@@ -30,16 +30,16 @@ def keywords(text, top_n):
 
 
 def main():
-    if (len(sys.argv) != 3):
-        print('Usage: python3 app.py gaps_input.txt [nbwords]')
+    if (len(sys.argv) !=2):
+        print('Usage: python3 app.py gaps_input.txt ')
         exit(1)
     filename = sys.argv[1]
-    nbwords = int(sys.argv[2])
     text = ""
     with open(filename, 'r') as file:
         text = file.read()
         print(text)
     # Call a module?
+    nbwords = int(len(text.split())*0.06)
 
     nltk.download('wordnet')
     wnl = WordNetLemmatizer()
@@ -51,7 +51,7 @@ def main():
         nb_diff_words = 0
         for word in n_keywords:
             #print(word)
-            word_sg = wnl.lemmatize(word) #Mets au singulier
+            word_sg = wnl.lemmatize(word) #Mots au singulier
             if word != word_sg:
                 if word_sg not in n_keywords:
                     nb_diff_words += 1
