@@ -1,17 +1,14 @@
 class Question:
     
     # Constructor
-    def __init__(self, proposition, answer, distractors):
-        self.proposition = proposition
+    def __init__(self, stem, options, answer):
+        self.stem = stem
+        self.options = options
         self.answer = answer
-        self.distractors = distractors
 
-    def toAiken(self):
-        string = self.proposition + "\n"
-        letter = "A"
-        string += letter + ". " + self.answer + "\n"
-        for distractor in self.distractors:
-            letter = chr(ord(letter) + 1)
-            string += letter + ". " + distractor + "\n"
-        string += "ANSWER: A\n\n"
-        return string
+    def to_aiken(self):
+        aiken = self.stem + '\n'
+        for i in range(len(self.options)):
+            aiken += chr(ord('A')+i) + '. ' + self.options[i] + '\n'
+        aiken += 'ANSWER: '+chr(ord('A') + self.answer) + '\n\n'
+        return aiken

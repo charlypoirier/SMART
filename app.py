@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 import sys
 import questions.boolean
-import questions.gaps
+# import questions.gaps
 
 def main():
     # Parse arguments
@@ -24,7 +24,7 @@ def main():
     # Save to a file in Aikan format
     with open('questionnaire.txt', 'w') as file:
         for question in questionnaire:
-            file.write(question.toAiken())
+            file.write(question.to_aiken())
 
 if __name__ == "__main__":
     main()
