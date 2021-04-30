@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 import sys
+import os
 from sklearn.feature_extraction.text import CountVectorizer
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
@@ -7,11 +8,22 @@ from transformers import pipeline
 #from pattern.text.en import singularize
 from nltk.stem import WordNetLemmatizer
 import nltk
+import spacy
+import gensim
+from gensim.test.utils import datapath, get_tmpfile
+from gensim.models import KeyedVectors
 
+glove_file = '../data/embeddings/glove.6B.300d.txt'
+tmp_file = '../data/embeddings/word2vec-glove.6B.300d.txt'
 
+nltk.download('wordnet')
+wnl = WordNetLemmatizer()
 unmasker = pipeline('fill-mask', model='bert-base-uncased')
-print(unmasker("Oxygen is the [MASK] element with atomic number 8."))
-print("\n\n")
+
+print("--------------------------\n")
+
+if not os.path.isfile(glove_file):
+    print("Glove embeddings not found. Please download and place them in the following path: " + glove_file)
 
 def keywords(text, top_n):
     n_gram_range = (1, 1)
@@ -29,6 +41,35 @@ def keywords(text, top_n):
     return top_n_keywords
 
 
+def find_distractors(word):
+    #from gensim.scripts.glove2word2vec import glove2word2vec
+    #glove2word2vec(glove_file, tmp_file)
+    model = KeyedVectors.load_word2vec_format(tmp_file)
+    print("distractors for ", word)
+    print(model.most_similar(positive=[word], topn=3))
+
+
+
+def bert_sentences(text, keywords):
+    nlp = spacy.load('en_core_web_sm')
+    mask = "[MASK]"
+    for word in keywords:
+        text = text.replace(word, mask)
+        text = text.replace(word.capitalize(), mask)
+        text = text.replace('[MASK]s', mask)
+        print("keyword :", word)
+    doc = nlp(text)
+    for sent in doc.sents:
+        sentence = str(sent)
+        if(sentence.count("[MASK]") == 1):
+            print(sentence)
+            usent = unmasker(sentence)
+            #print(truc["token_str"])
+            #print(truc)
+            for item in usent:
+                print(item["token_str"])
+            print("\n\n")
+
 def main():
     if (len(sys.argv) != 3):
         print('Usage: python3 app.py gaps_input.txt [nbwords]')
@@ -41,8 +82,13 @@ def main():
         print(text)
     # Call a module?
 
-    nltk.download('wordnet')
-    wnl = WordNetLemmatizer()
+
+
+    #doc = nlp(text)
+    #for token in doc:
+    #    print(token.text, " ",token.tag_, " : ", spacy.explain(token.tag_))
+    #for ent in doc.ents:
+    #    print(ent.text, " -- " ,ent.label_ ," -- ", spacy.explain(ent.label_))
 
     origin_nbwords = nbwords
     end = False
@@ -63,9 +109,13 @@ def main():
             nbwords += (origin_nbwords - nb_diff_words)
         else:
             end = True
-        print("\nKeywords of article", n_keywords,)
+        print("\nKeywords of article", n_keywords, '\n')
+
+
+    bert_sentences(text, n_keywords)
 
     for word in n_keywords:
+        #find_distractors(word)
         text = text.replace(word, '___')
         text = text.replace(word.capitalize(), '___')
         text = text.replace('___s', '___')
