@@ -7,7 +7,7 @@ Boolean questions
 
 import random
 import spacy
-from questions.Question import Question
+from classes.question import Question
 from PyDictionary import PyDictionary
 
 # Global variables
