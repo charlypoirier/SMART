@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 import sys
 import questions.boolean
+import questions.gaps
 
 def main():
     # Parse arguments
@@ -18,7 +19,7 @@ def main():
     # Generate questions
     questionnaire = set()
     questionnaire = set.union(questionnaire, questions.boolean.generate(text))
-    # questionnaire = set.union(questionnaire, questions.gaps.generate(text))
+    #questionnaire = set.union(questionnaire, questions.gaps.generate(text))
     
     # Save to a file in Aikan format
     with open('questionnaire.txt', 'w') as file:
