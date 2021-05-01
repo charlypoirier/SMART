@@ -31,35 +31,35 @@ def replace_adjectives_with_antonyms(sentence):
     return sentence
 
 def negate_present_auxiliary(sentence):
-    sentence_nlp_to_negate = nlp(sentence)
-    new_sentence = ""
-    for token in sentence_nlp_to_negate:
+    document = nlp(sentence)
+    sentence = ""
+    for token in document:
         if (token.tag_ == "VBZ" or token.tag_ == "VBP") and token.pos_ == "AUX":
-            new_sentence += token.text_with_ws + "not "
+            sentence += token.text_with_ws + "not "
         else:
-            new_sentence += token.text_with_ws
-    return new_sentence
+            sentence += token.text_with_ws
+    return sentence
 
 def negate_present_verb(sentence):
-    sentence_nlp_to_negate = nlp(sentence)
-    new_sentence = ""
-    for token in sentence_nlp_to_negate:
+    document = nlp(sentence)
+    sentence = ""
+    for token in document:
         if token.pos_ == "VERB":
             if token.tag_ == "VBZ":
-                new_sentence += "doesn't " + token.lemma_ + token.whitespace_
+                sentence += "doesn't " + token.lemma_ + token.whitespace_
             elif token.tag_ == "VBP":
-                new_sentence += "don't " + token.lemma_ + token.whitespace_
+                sentence += "don't " + token.lemma_ + token.whitespace_
             else:
-                new_sentence += token.text_with_ws
+                sentence += token.text_with_ws
         else:
-            new_sentence += token.text_with_ws
-    return new_sentence
+            sentence += token.text_with_ws
+    return sentence
 
 def generate(text):
     """
-    Generate and return a set of
-    boolean questions.
-    TODO: negate() should always negate
+    Generate and return a set of boolean questions.
+    TODO: negate() should always negate, or tell when it didn't
+    TODO: fix "is not" => "is not not"
     """
     document  = nlp(text)
     sentences = document.sents
