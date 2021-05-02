@@ -42,6 +42,9 @@ def keywords(text, top_n):
 
     return top_n_keywords
 
+# Renvoie la liste complète des mots clés du texte
+# Utilise la fonction keywords(text, top_n) puis rajoute au tableau des mots clés 
+# les singuliers, des majuscules aux premiers mots
 def formated_keywords(text):
     #nbwords = int(len(text.split())*0.06)
     nbwords = 4
@@ -109,9 +112,6 @@ def bert_sentences(text, keywords):
                 print(item["token_str"])
             print("\n\n")
 
-
-#def find_key_words:
-
 # Fonction qui parcourt le texte pour trouver les mots clés à cacher.
 # Pour chaque mot clé, on stocke le mot caché et on trouve els distracteurs
 # La fonction renvoie 
@@ -123,7 +123,7 @@ def through_text(text):
     text_tokens_list = nlp(text)#On récupère chaque mot du texte et ses informations
     text_words_list =[]
 
-    #On convertit la liste de tokens en une lisete de mots
+    #On convertit la liste de tokens en une liste de mots
     for token in text_tokens_list:
         text_words_list.append(token.text)
     print ("TT")
@@ -159,25 +159,19 @@ def through_text(text):
     return [tab_answers, distractors, gap_text]
 
 def generate(text):
-    """if (len(sys.argv) !=2):
-        print('Usage: python3 app.py gaps_input.txt ')
-        exit(1)
-    filename = sys.argv[1]
-    text = ""
-    with open(filename, 'r') as file:
-        text = file.read()
-        print(text)"""
-    # Call a module?
-    
-    #n_keywords = ['bunny', 'rodents', 'rabbit', 'rabbits', 'rodent']
+    #On crée les réponses, les distracteurs et le texte avec les trous
     [tab_answers, distractors, gap_text] = through_text(text)
 
+    """Debug
     print ("\n\n**********Gap Text************ ", "\n\n") 
     print(gap_text)
 
     print ("\n\n**********Réponses************ ", "\n\n") 
     
     print (text)
+    """
+
+    #Création de la liste de questions
     i=0
     questions_list_Aik = []
     for groupe in distractors:
