@@ -27,6 +27,45 @@ print("--------------------------\n")
 if not os.path.isfile(glove_file):
     print("Glove embeddings not found. Please download and place them in the following path: " + glove_file)
 
+"""
+def bert_tags():
+
+    # Text with a single mask
+    text = "[MASK] are small mammals in the family Leporidae (along with the hare) of the order Lagomorpha (along with the pika). Oryctolagus cuniculus includes the European rabbit species and its descendants, the world's 305 breeds[1] of domestic rabbit. Sylvilagus includes 13 wild rabbit species, among them the seven types of cottontail. The European rabbit, which has been introduced on every continent except Antarctica, is familiar throughout the world as a wild prey animal and as a domesticated form of livestock and pet. With its widespread effect on ecologies and cultures, the rabbit (or bunny) is, in many areas of the world, a part of daily life—as food, clothing, a companion and a source of artistic inspiration."
+
+    nlp = spacy.load('en_core_web_sm')
+
+    pos  = text.find("[MASK]")
+    print("Position of keywords :" , pos)
+    
+    # unmask
+    usent = unmasker(text)
+    
+    #doc = nlp(usent)
+    #for tok in doc:
+    #    print(tok.text_, " ",tok.tag_)
+
+    print(usent)
+    # print unmasked words
+    for item in usent:
+        text = item["sequence"]    
+        doc = nlp(text)
+
+        un_keyword = item["token_str"]
+        un_pos = text.find(str(un_keyword))
+
+
+        for token in doc:
+            #print(token.text, ' -> ', token.pos_)
+            if(token.text == un_keyword):
+                print("Unmasked keyword found : ", token.text)
+                print(" is of type :", token.pos_, "(", spacy.explain(token.pos_), ")")
+                break
+
+        print("-----------", item["token_str"] ,'\n')
+    
+    print("\n\n")"""
+
 def keywords(text, top_n):
     n_gram_range = (1, 1)
     stop_words = "english"
@@ -158,6 +197,7 @@ def through_text(text):
     gap_text = gap_text.replace("( ", "(")
     return [tab_answers, distractors, gap_text]
 
+
 def generate(text):
     #On crée les réponses, les distracteurs et le texte avec les trous
     [tab_answers, distractors, gap_text] = through_text(text)
@@ -191,4 +231,3 @@ def generate(text):
 
     return questions_list_Aik
 
-#generate()
