@@ -35,9 +35,8 @@ def bert_tags(text, ref_word, ref_pos, nlp):
     print("Position of keywords :" , pos)
     
     # unmask
-    unmask = unmasker(text)
+    unmask = unmasker(text, top_k = 10)
     #print(unmask)
-    distractors = []
 
     for item in unmask: 
         text = item["sequence"]
@@ -57,7 +56,7 @@ def bert_tags(text, ref_word, ref_pos, nlp):
     print("Keywords for ", ref_word, ':', distractors) 
     print("\n\n")
 
-    return distractors
+    return distractors[:4]
 
 def keywords(text, top_n):
     n_gram_range = (1, 1)
@@ -151,6 +150,7 @@ def bert_sentences(text, keywords):
 # - la liste des distracteurs de chaque mot caché (lise de liste)
 # - le texte avec les trous _i_
 def through_text(text):
+    options = []
     nlp = spacy.load('en_core_web_sm')
     text_tokens_list = nlp(text)#On récupère chaque mot du texte et ses informations
     text_words_list =[]
@@ -186,9 +186,17 @@ def through_text(text):
             print(" --- call to bert_tags --- ")
             print("Masked word : ", word, " - masked word tag ", text_tags[word])
             print("Masked text : ", mask_text, '\n')
-            options = bert_tags(mask_text, word, text_tags[word], nlp)
-
-
+            
+            tmp = bert_tags(mask_text, word, text_tags[word], nlp)
+            if len(tmp) < 3 :
+                tmp = []
+                tmp2 = unmasker(mask_text)
+                for w in tmp2:
+                    tmp.append(w["token_str"])
+                print(tmp)
+                options.append(tmp)
+            else:
+                options.append(tmp)
             distractors.append(unmasker(mask_text ))
             num_gap +=1        
         else:
@@ -206,8 +214,8 @@ def through_text(text):
 
 def generate(text):
     #On crée les réponses, les distracteurs et le texte avec les trous
-    [tab_answers, distractors, gap_text, options] = through_text(text)
-
+    [tab_answers, distractors, gap_text, im_options] = through_text(text)
+    print(im_options)
     """Debug
     print ("\n\n**********Gap Text************ ", "\n\n") 
     print(gap_text)
@@ -218,8 +226,16 @@ def generate(text):
     """
 
     #Création de la liste de questions
-    i=0
     questions_list_Aik = []
+   
+    for i in range(len(im_options)):
+        print("Generating question :", str(i))
+        gap_text_n = gap_text + "\nAnswer gap n°" + str(i) 
+        q = Question(gap_text_n, im_options[i], 0)
+        questions_list_Aik.append(q)
+
+
+    """
     for groupe in distractors:
         print (i, tab_answers[i])
         options = []
@@ -229,11 +245,11 @@ def generate(text):
             options.append(option)
             print (option)
         gap_text_n = gap_text + "\nAnswer gap n°" + str(i)
-        q = Question(gap_text_n, options, 0)
+        q = Question(gap_text_n, im_options, 0)
         questions_list_Aik.append(q)
         questions_list_Aik.append(q)
         print("\n\n")
         i += 1
-
+    """
     return questions_list_Aik
 
