@@ -24,47 +24,61 @@ unmasker = pipeline('fill-mask', model='bert-base-uncased')
 
 print("--------------------------\n")
 
-if not os.path.isfile(glove_file):
-    print("Glove embeddings not found. Please download and place them in the following path: " + glove_file)
+#if not os.path.isfile(glove_file):
+#    print("Glove embeddings not found. Please download and place them in the following path: " + glove_file)
 
-"""
-def bert_tags():
-
-    # Text with a single mask
-    text = "[MASK] are small mammals in the family Leporidae (along with the hare) of the order Lagomorpha (along with the pika). Oryctolagus cuniculus includes the European rabbit species and its descendants, the world's 305 breeds[1] of domestic rabbit. Sylvilagus includes 13 wild rabbit species, among them the seven types of cottontail. The European rabbit, which has been introduced on every continent except Antarctica, is familiar throughout the world as a wild prey animal and as a domesticated form of livestock and pet. With its widespread effect on ecologies and cultures, the rabbit (or bunny) is, in many areas of the world, a part of daily life—as food, clothing, a companion and a source of artistic inspiration."
-
-    nlp = spacy.load('en_core_web_sm')
+def bert_tags(text, ref_word, ref_pos, nlp):
+   
+    distractors = []
 
     pos  = text.find("[MASK]")
     print("Position of keywords :" , pos)
     
     # unmask
-    usent = unmasker(text)
+    unmask = unmasker(text)
     
-    #doc = nlp(usent)
-    #for tok in doc:
-    #    print(tok.text_, " ",tok.tag_)
+    print(unmask)
 
-    print(usent)
-    # print unmasked words
-    for item in usent:
-        text = item["sequence"]    
+    for item in unmask: 
+        text = item["sequence"]
+        unmask_word = item["token_str"]
         doc = nlp(text)
 
-        un_keyword = item["token_str"]
-        un_pos = text.find(str(un_keyword))
-
+        print(text)
+        
 
         for token in doc:
-            #print(token.text, ' -> ', token.pos_)
-            if(token.text == un_keyword):
-                print("Unmasked keyword found : ", token.text)
-                print(" is of type :", token.pos_, "(", spacy.explain(token.pos_), ")")
+            if(token.text == unmask_word):
+                unmask_pos_ = token.pos_
                 break
+                #    text_words_list.append(token.text)
 
-        print("-----------", item["token_str"] ,'\n')
+        print("Unmasked word for ", ref_word, "(", ref_pos, ")  is ", unmask_word, "(", unmask_pos_,")") 
+
+    # print unmasked words
+    #for item in unmask:
+    #    text = item["sequence"]    
+     #   doc = nlp(text)
+#
+  #      un_keyword = item["token_str"]
+ #       un_pos = text.find(str(un_keyword))
+   #     print("pos : " , pos, " -- ", un_pos)
+
+
+    #    for token in doc:
+            #print(token.text, ' -> ', token.pos_)
+     #       if(token.text == un_keyword):
+      #          print("Unmasked keyword found : ", token.text)
+       #         print(" is of type :", token.pos_, "(", spacy.explain(token.pos_), ")")
+        #        if (token.pos_ == ref_pos) :
+         #           print(" !! is a possible distractor")
+          #          distractors.append(token.text)
+           #     break
+
+        #print("-----------", item["token_str"] ,'\n')
+        #print("distractors ", distractors)
     
-    print("\n\n")"""
+    print("\n\n")
 
 def keywords(text, top_n):
     n_gram_range = (1, 1)
@@ -163,8 +177,10 @@ def through_text(text):
     text_words_list =[]
 
     #On convertit la liste de tokens en une liste de mots
+    text_tags = {}
     for token in text_tokens_list:
         text_words_list.append(token.text)
+        text_tags[token.text] = token.pos_
     print ("TT")
 
     i = 0
@@ -184,6 +200,14 @@ def through_text(text):
             mask_text_words_list[i] = "[MASK]"
             mask_text = " ".join(mask_text_words_list)
             #distractors.append( FIND DISTRACTORS )
+
+
+            # Call to bert_tags
+            print(" --- call to bert_tags --- ")
+            print("Masked word : ", word, " - masked word tag ", text_tags[word])
+            print("Masked text : ", mask_text, '\n')
+            bert_tags(mask_text, word, text_tags[word], nlp)
+
             distractors.append(unmasker(mask_text ))
             i+=1        
         else:
