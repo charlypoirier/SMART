@@ -51,7 +51,7 @@ def bert_tags(text, ref_word, ref_pos, nlp):
                 #    text_words_list.append(token.text)
 
         print("Unmasked word for ", ref_word, "(", ref_pos, ")  is ", unmask_word, "(", unmask_pos_,")") 
-        if (ref_pos == unmask_pos_ ):
+        if (ref_pos == unmask_pos_ and ref_word != unmask_word):
             distractors.append(unmask_word)
 
     print("Keywords for ", ref_word, ':', distractors) 
