@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 import sys
 import os
+from classes.question import Question
 from sklearn.feature_extraction.text import CountVectorizer
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
@@ -13,6 +14,7 @@ import gensim
 from gensim.test.utils import datapath, get_tmpfile
 from gensim.models import KeyedVectors
 
+
 glove_file = '../data/embeddings/glove.6B.300d.txt'
 tmp_file = '../data/embeddings/word2vec-glove.6B.300d.txt'
 
@@ -22,8 +24,39 @@ unmasker = pipeline('fill-mask', model='bert-base-uncased')
 
 print("--------------------------\n")
 
-if not os.path.isfile(glove_file):
-    print("Glove embeddings not found. Please download and place them in the following path: " + glove_file)
+#if not os.path.isfile(glove_file):
+#    print("Glove embeddings not found. Please download and place them in the following path: " + glove_file)
+
+def bert_tags(text, ref_word, ref_pos, nlp):
+   
+    distractors = []
+
+    pos  = text.find("[MASK]")
+    print("Position of keywords :" , pos)
+    
+    # unmask
+    unmask = unmasker(text, top_k = 10)
+    #print(unmask)
+
+    for item in unmask: 
+        text = item["sequence"]
+        unmask_word = item["token_str"]
+        doc = nlp(text)
+
+        for token in doc:
+            if(token.text == unmask_word):
+                unmask_pos_ = token.pos_
+                break
+                #    text_words_list.append(token.text)
+
+        print("Unmasked word for ", ref_word, "(", ref_pos, ")  is ", unmask_word, "(", unmask_pos_,")") 
+        if (ref_pos == unmask_pos_ and ref_word != unmask_word):
+            distractors.append(unmask_word)
+
+    print("Keywords for ", ref_word, ':', distractors) 
+    print("\n\n")
+
+    return distractors[:4]
 
 def keywords(text, top_n):
     n_gram_range = (1, 1)
@@ -39,6 +72,46 @@ def keywords(text, top_n):
     top_n_keywords = [candidates[index] for index in distances.argsort()[0][-top_n:]]
 
     return top_n_keywords
+
+# Renvoie la liste complète des mots clés du texte
+# Utilise la fonction keywords(text, top_n) puis rajoute au tableau des mots clés 
+# les singuliers, des majuscules aux premiers mots
+def formated_keywords(text):
+    #nbwords = int(len(text.split())*0.06)
+    nbwords = 4
+
+    origin_nbwords = nbwords
+    sg_words_to_add = []
+    end = False
+    while not end:
+        n_keywords = keywords(text, nbwords)
+        nb_diff_words = 0
+        sg_words_to_add = []
+        for word in n_keywords:
+            #print(word)
+            word_sg = wnl.lemmatize(word) #Mots au singulier
+            if word != word_sg:
+                if word_sg not in n_keywords:
+                    nb_diff_words += 1
+                    sg_words_to_add.append(word_sg)
+            else:
+                nb_diff_words += 1
+        for word_to_add in sg_words_to_add:
+            if word_to_add not in n_keywords:
+                n_keywords.append(word_to_add)
+        #print("nb-diff_words", nb_diff_words, nbwords, origin_nbwords)
+        if (origin_nbwords - nb_diff_words > 0):
+            nbwords += (origin_nbwords - nb_diff_words)
+        else:
+            end = True
+
+        words_C = []
+        for word in n_keywords:
+            words_C.append(word.capitalize())
+        n_keywords = n_keywords + words_C
+
+        print("\nKeywords of article", n_keywords, '\n')
+    return n_keywords
 
 
 def find_distractors(word):
@@ -70,97 +143,113 @@ def bert_sentences(text, keywords):
                 print(item["token_str"])
             print("\n\n")
 
-def bert_tags():
-
-    # Text with a single mask
-    text = "[MASK] are small mammals in the family Leporidae (along with the hare) of the order Lagomorpha (along with the pika). Oryctolagus cuniculus includes the European rabbit species and its descendants, the world's 305 breeds[1] of domestic rabbit. Sylvilagus includes 13 wild rabbit species, among them the seven types of cottontail. The European rabbit, which has been introduced on every continent except Antarctica, is familiar throughout the world as a wild prey animal and as a domesticated form of livestock and pet. With its widespread effect on ecologies and cultures, the rabbit (or bunny) is, in many areas of the world, a part of daily life—as food, clothing, a companion and a source of artistic inspiration."
-
+# Fonction qui parcourt le texte pour trouver les mots clés à cacher.
+# Pour chaque mot clé, on stocke le mot caché et on trouve els distracteurs
+# La fonction renvoie 
+# - la liste des mots cachés, 
+# - la liste des distracteurs de chaque mot caché (lise de liste)
+# - le texte avec les trous _i_
+def through_text(text):
+    options = []
     nlp = spacy.load('en_core_web_sm')
+    text_tokens_list = nlp(text)#On récupère chaque mot du texte et ses informations
+    text_words_list =[]
 
-    pos  = text.find("[MASK]")
-    print("Position of keywords :" , pos)
-    
-    # unmask
-    usent = unmasker(text)
-    
-    #doc = nlp(usent)
-    #for tok in doc:
-    #    print(tok.text_, " ",tok.tag_)
+    #On convertit la liste de tokens en une liste de mots
+    text_tags = {}
+    for token in text_tokens_list:
+        text_words_list.append(token.text)
+        text_tags[token.text] = token.pos_
+    print ("TT")
 
-    print(usent)
-    # print unmasked words
-    for item in usent:
-        text = item["sequence"]    
-        doc = nlp(text)
-
-        un_keyword = item["token_str"]
-        un_pos = text.find(str(un_keyword))
-
-
-        for token in doc:
-            #print(token.text, ' -> ', token.pos_)
-            if(token.text == un_keyword):
-                print("Unmasked keyword found : ", token.text)
-                print(" is of type :", token.pos_, "(", spacy.explain(token.pos_), ")")
-                break
-
-        print("-----------", item["token_str"] ,'\n')
-    
-    print("\n\n")
+    num_gap = 0
+    num_word = 0
+    tab_answers =[]#Stocke les mots originaux
+    mask_text_words_list = []# Stocke tous les mots du text avec un qui est remplacé par [MASK]
+    mask_text = []#Nouveau texte avec [MASK]
+    distractors = []
+    gap_text_list = []#liste de mots formant le texte avec les gaps _i_
+    n_keywords = formated_keywords(text)
+    for word in text_words_list:
+        if word in n_keywords:
+            gap = "_"+str(num_gap)+"_"
+            gap_text_list.append(gap)
+            tab_answers.append(word)
+            mask_text_words_list = []
+            mask_text_words_list = text_words_list [:]
+            mask_text_words_list[num_word] = "[MASK]"
+            mask_text = " ".join(mask_text_words_list)
+            #distractors.append( FIND DISTRACTORS )
 
 
-def main():
-    if (len(sys.argv) !=2):
-        print('Usage: python3 app.py gaps_input.txt ')
-        exit(1)
-    filename = sys.argv[1]
-    text = ""
-    with open(filename, 'r') as file:
-        text = file.read()
-        print(text)
-    # Call a module?
-    nbwords = int(len(text.split())*0.06)
-
-
-
-    #doc = nlp(text)
-    #for token in doc:
-    #    print(token.text, " ",token.tag_, " : ", spacy.explain(token.tag_))
-    #for ent in doc.ents:
-    #    print(ent.text, " -- " ,ent.label_ ," -- ", spacy.explain(ent.label_))
-
-    origin_nbwords = nbwords
-    end = False
-    while not end:
-        n_keywords = keywords(text, nbwords)
-        nb_diff_words = 0
-        for word in n_keywords:
-            #print(word)
-            word_sg = wnl.lemmatize(word) #Mots au singulier
-            if word != word_sg:
-                if word_sg not in n_keywords:
-                    nb_diff_words += 1
+            # Call to bert_tags
+            print(" --- call to bert_tags --- ")
+            print("Masked word : ", word, " - masked word tag ", text_tags[word])
+            print("Masked text : ", mask_text, '\n')
+            
+            tmp = bert_tags(mask_text, word, text_tags[word], nlp)
+            if len(tmp) < 3 :
+                tmp = []
+                tmp2 = unmasker(mask_text)
+                for w in tmp2:
+                    tmp.append(w["token_str"])
+                print(tmp)
+                options.append(tmp)
             else:
-                nb_diff_words += 1
-
-        print("nb-diff_words", nb_diff_words, nbwords)
-        if (origin_nbwords - nb_diff_words > 0):
-            nbwords += (origin_nbwords - nb_diff_words)
+                options.append(tmp)
+            distractors.append(unmasker(mask_text ))
+            num_gap +=1        
         else:
-            end = True
-        print("\nKeywords of article", n_keywords, '\n')
+            gap_text_list.append(word)
+        num_word += 1
+    #Refactorisation du texte
+    gap_text = " ".join(gap_text_list)
+    gap_text = gap_text.replace(" ,", ",")
+    gap_text = gap_text.replace(" .", ".")
+    gap_text = gap_text.replace(" 's", "'s")
+    gap_text = gap_text.replace(" )", ")")
+    gap_text = gap_text.replace("( ", "(")
+    return [tab_answers, distractors, gap_text, options]
 
 
-    #bert_sentences(text, n_keywords)
-    bert_tags()
+def generate(text):
+    #On crée les réponses, les distracteurs et le texte avec les trous
+    [tab_answers, distractors, gap_text, im_options] = through_text(text)
+    print(im_options)
+    """Debug
+    print ("\n\n**********Gap Text************ ", "\n\n") 
+    print(gap_text)
 
-    for word in n_keywords:
-        #find_distractors(word)
-        text = text.replace(word, '___')
-        text = text.replace(word.capitalize(), '___')
-        text = text.replace('___s', '___')
+    print ("\n\n**********Réponses************ ", "\n\n") 
+    
+    print (text)
+    """
 
-    print(text)
+    #Création de la liste de questions
+    questions_list_Aik = []
+   
+    for i in range(len(im_options)):
+        print("Generating question :", str(i))
+        gap_text_n = gap_text + "\nAnswer gap n°" + str(i) 
+        q = Question(gap_text_n, im_options[i], 0)
+        questions_list_Aik.append(q)
 
 
-main()
+    """
+    for groupe in distractors:
+        print (i, tab_answers[i])
+        options = []
+        options.append(tab_answers[i])
+        for prop in groupe:
+            option = prop["token_str"]
+            options.append(option)
+            print (option)
+        gap_text_n = gap_text + "\nAnswer gap n°" + str(i)
+        q = Question(gap_text_n, im_options, 0)
+        questions_list_Aik.append(q)
+        questions_list_Aik.append(q)
+        print("\n\n")
+        i += 1
+    """
+    return questions_list_Aik
+
