@@ -1,10 +1,9 @@
 #!/usr/bin/python3
+from questions import gaps, boolean, wh
 import sys
-import questions.boolean
-import questions.gaps
-# import questions.gaps
 
 def main():
+
     # Parse arguments
     if (len(sys.argv) != 2):
         print('Usage: python3 app.py input.txt')
@@ -12,24 +11,22 @@ def main():
     filename = sys.argv[1]
     
     # Extract the text
-    text = ''
     with open(filename, 'r') as file:
         text = file.read()
-    text = text.replace('\n', ' ')
+
+    # Length limit
+    text = text[:1000000]
     
     # Generate questions
     questionnaire = set()
-    questionnaire = set.union(questionnaire, questions.boolean.generate(text))
-    questionnaire = set.union(questionnaire, questions.gaps.generate(text))
-    #questionnaire = set.union(questionnaire, questions.gaps.generate(text))
+    questionnaire = set.union(questionnaire, wh.generate(text))
+    # questionnaire = set.union(questionnaire, gaps.generate(text))
+    # questionnaire = set.union(questionnaire, boolean.generate(text))
     
     # Save to a file in Aikan format
     with open('questionnaire.txt', 'w') as file:
-        n = len(questionnaire)
-        print("\n--> ", n)
         for question in questionnaire:
             n = file.write(question.to_aiken())
-            print(n)
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
