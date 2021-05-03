@@ -36,16 +36,13 @@ def bert_tags(text, ref_word, ref_pos, nlp):
     
     # unmask
     unmask = unmasker(text)
-    
-    print(unmask)
+    #print(unmask)
+    distractors = []
 
     for item in unmask: 
         text = item["sequence"]
         unmask_word = item["token_str"]
         doc = nlp(text)
-
-        print(text)
-        
 
         for token in doc:
             if(token.text == unmask_word):
@@ -54,31 +51,13 @@ def bert_tags(text, ref_word, ref_pos, nlp):
                 #    text_words_list.append(token.text)
 
         print("Unmasked word for ", ref_word, "(", ref_pos, ")  is ", unmask_word, "(", unmask_pos_,")") 
+        if (ref_pos == unmask_pos_ ):
+            distractors.append(unmask_word)
 
-    # print unmasked words
-    #for item in unmask:
-    #    text = item["sequence"]    
-     #   doc = nlp(text)
-#
-  #      un_keyword = item["token_str"]
- #       un_pos = text.find(str(un_keyword))
-   #     print("pos : " , pos, " -- ", un_pos)
-
-
-    #    for token in doc:
-            #print(token.text, ' -> ', token.pos_)
-     #       if(token.text == un_keyword):
-      #          print("Unmasked keyword found : ", token.text)
-       #         print(" is of type :", token.pos_, "(", spacy.explain(token.pos_), ")")
-        #        if (token.pos_ == ref_pos) :
-         #           print(" !! is a possible distractor")
-          #          distractors.append(token.text)
-           #     break
-
-        #print("-----------", item["token_str"] ,'\n')
-        #print("distractors ", distractors)
-    
+    print("Keywords for ", ref_word, ':', distractors) 
     print("\n\n")
+
+    return distractors
 
 def keywords(text, top_n):
     n_gram_range = (1, 1)
@@ -183,7 +162,8 @@ def through_text(text):
         text_tags[token.text] = token.pos_
     print ("TT")
 
-    i = 0
+    num_gap = 0
+    num_word = 0
     tab_answers =[]#Stocke les mots originaux
     mask_text_words_list = []# Stocke tous les mots du text avec un qui est remplacé par [MASK]
     mask_text = []#Nouveau texte avec [MASK]
@@ -192,12 +172,12 @@ def through_text(text):
     n_keywords = formated_keywords(text)
     for word in text_words_list:
         if word in n_keywords:
-            gap = "_"+str(i)+"_"
+            gap = "_"+str(num_gap)+"_"
             gap_text_list.append(gap)
             tab_answers.append(word)
             mask_text_words_list = []
             mask_text_words_list = text_words_list [:]
-            mask_text_words_list[i] = "[MASK]"
+            mask_text_words_list[num_word] = "[MASK]"
             mask_text = " ".join(mask_text_words_list)
             #distractors.append( FIND DISTRACTORS )
 
@@ -206,12 +186,14 @@ def through_text(text):
             print(" --- call to bert_tags --- ")
             print("Masked word : ", word, " - masked word tag ", text_tags[word])
             print("Masked text : ", mask_text, '\n')
-            bert_tags(mask_text, word, text_tags[word], nlp)
+            options = bert_tags(mask_text, word, text_tags[word], nlp)
+
 
             distractors.append(unmasker(mask_text ))
-            i+=1        
+            num_gap +=1        
         else:
             gap_text_list.append(word)
+        num_word += 1
     #Refactorisation du texte
     gap_text = " ".join(gap_text_list)
     gap_text = gap_text.replace(" ,", ",")
@@ -219,12 +201,12 @@ def through_text(text):
     gap_text = gap_text.replace(" 's", "'s")
     gap_text = gap_text.replace(" )", ")")
     gap_text = gap_text.replace("( ", "(")
-    return [tab_answers, distractors, gap_text]
+    return [tab_answers, distractors, gap_text, options]
 
 
 def generate(text):
     #On crée les réponses, les distracteurs et le texte avec les trous
-    [tab_answers, distractors, gap_text] = through_text(text)
+    [tab_answers, distractors, gap_text, options] = through_text(text)
 
     """Debug
     print ("\n\n**********Gap Text************ ", "\n\n") 
