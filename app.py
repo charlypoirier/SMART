@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 import sys
 import questions.boolean
+import questions.gaps
 # import questions.gaps
 
 def main():
@@ -19,12 +20,16 @@ def main():
     # Generate questions
     questionnaire = set()
     questionnaire = set.union(questionnaire, questions.boolean.generate(text))
+    questionnaire = set.union(questionnaire, questions.gaps.generate(text))
     #questionnaire = set.union(questionnaire, questions.gaps.generate(text))
     
     # Save to a file in Aikan format
     with open('questionnaire.txt', 'w') as file:
+        n = len(questionnaire)
+        print("\n--> ", n)
         for question in questionnaire:
-            file.write(question.to_aiken())
+            n = file.write(question.to_aiken())
+            print(n)
 
 if __name__ == "__main__":
     main()
