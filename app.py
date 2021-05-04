@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-from questions import gaps, boolean, wh
+from questions import gaps, boolean, wh, spacy_keyword
 import sys
 
 def main():
@@ -19,9 +19,11 @@ def main():
     
     # Generate questions
     questionnaire = set()
-    questionnaire = set.union(questionnaire, wh.generate(text))
+    #questionnaire = set.union(questionnaire, wh.generate(text))
     # questionnaire = set.union(questionnaire, gaps.generate(text))
     # questionnaire = set.union(questionnaire, boolean.generate(text))
+    questionnaire = set.union(questionnaire, spacy_keyword.generate(text))
+
     
     # Save to a file in Aikan format
     with open('questionnaire.txt', 'w') as file:
