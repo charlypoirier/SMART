@@ -50,8 +50,9 @@ def find_subj_of(verb_list):
   for token in verb.lefts:
     if token.dep_ == "nsubj":
       nsubj_token=token
-      break
-  return flatten_tree(nsubj_token.subtree)
+      return flatten_tree(nsubj_token.subtree)
+      
+  
 
 
 def list_of_token_to_str(list_token):
@@ -127,6 +128,8 @@ def generate_what(doc,token):
       return Question("what "+"did "+str(find_subj_of(verb_list))+" "+str(verb_list[0].lemma_),[" "],0)
     elif ( verb_list[0].tag_=="VBZ"): #3eme personne present
       return Question("what "+"does "+str(find_subj_of(verb_list))+" "+str(verb_list[0].lemma_),[" "],0)
+    elif (verb_list[0].tag_=="VBP"): #present !=3eme personne
+      return Question("what "+"do "+str(find_subj_of(verb_list))+" "+str(verb_list[0].lemma_),[" "],0)
 
 
 def generate_wh(text):
