@@ -9,6 +9,7 @@ import random
 import spacy
 from classes.question import Question
 from PyDictionary import PyDictionary
+from re import search
 
 # Global variables
 nlp = spacy.load('en_core_web_sm')
@@ -240,6 +241,35 @@ def negate_present_or_past_sentence(sentence_nlp_to_negate):
     return new_sentence
 
 
+def get_chunk_from_word(sentence_nlp, word):
+    for c in sentence_nlp.noun_chunks:
+        print("search2")
+        if search(word, c.text):
+            print("search")
+            return c.text
+    return "not found"
+
+
+def replace_wh_words(sentence_nlp):
+    new_text = ""
+    last_subject = "undefined"
+    for token in sentence_nlp:
+        if token.dep_ == "pobj":
+            last_subject = token.text
+        if token.tag_ == "WDT" and not token.i == 0:
+            if last_subject != "undefined":
+                c = get_chunk_from_word(sentence_nlp, last_subject)
+                if c != "not found":
+                    new_text += ". " + c.capitalize()
+                else:
+                    new_text += " " + token.text
+            else:
+                new_text += " " + token.text
+        else:
+            new_text += " " + token.text
+    return new_text
+
+
 def preprocessing(sentences):
     for i in range(len(sentences)):
         sentences[i] = sentences[i].replace("-", '')
@@ -251,6 +281,7 @@ def generate(text):
     """
     Generate and return a set of boolean questions.
     """
+    text = replace_wh_words(text)
     document = nlp(text)
     sentences = document.sents
     sentences += extract_clauses(sentences)
