@@ -38,16 +38,24 @@ def get_hotwords(text):
 def get_entities(text):
     result =[]
     doc = nlp(text)
+    accept_ent = ['NORP', 'DATE', 'TIME', 'ORDINAL', 'CARDINAL']
     for ent in doc.ents:
-        result.append(ent.text)
+        print('[',ent.label_ , '(', spacy.explain(ent.label_),") ] " , ent.text)
+        if(ent.label_ in accept_ent):
+            result.append(ent.text)
     return result
 
 
 
 def replace_kwords(text, keywords):
     for word in keywords:
-        nword = ' ' + word + ' '
-        text = text.replace(nword, " ___ ")
+        nword = word + ' '
+        text = text.replace(nword, "___ ")
+        nword = ' ' + word + '.'
+        text = text.replace(nword, " ___.")
+        nword = ' ' + word + ','
+        text = text.replace(nword, " ___,")
+
     print(text)
 
 
@@ -57,23 +65,21 @@ text = load_text(filename)
 # get hot words and remove keywords
 nbwords = int(len(text.split())*0.06)
 output = get_hotwords(text)
+entities = get_entities(text)
 print("text : ", text, "\nnbwords = ", nbwords , "\n keywords = ", output)
-print("entities : ", get_entities(text))
+print("entities : ", entities)
 keywords = [] 
-
-
-
 
 #for i in range (len(output)):
 #    if (output[i] in get_entities(text)):
 #        keywords.append(output[i])
 
-keywords = keywords + get_entities(text)
+keywords = keywords + entities
 if len(keywords) > nbwords:
-    keywords = random.sample(keywords, len(keywords) - nbwords)
+    keywords = random.sample(keywords, nbwords)
 
-if len(keywords) < nbwords:
-    keywords = keywords  + random.sample(output,nbwords - len(keywords))
+#if len(keywords) < nbwords:
+#    keywords = keywords  + random.sample(output,nbwords - len(keywords))
 
 
 print(keywords)
