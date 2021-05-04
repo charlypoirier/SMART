@@ -48,17 +48,24 @@ def get_entities(text):
 
 
 def replace_kwords(text, keywords):
+    keywods =  sorted(keywords, key=len, reverse=True)
+    text = ' ' + text
     for word in keywords:
-        nword = word + ' '
-        text = text.replace(nword, "___ ")
+        nword = ' ' + word + ' '
+        text = text.replace(nword, " ___ ")
         nword = ' ' + word + '.'
         text = text.replace(nword, " ___.")
         nword = ' ' + word + ','
         text = text.replace(nword, " ___,")
-
+    text = text[1:]
     print(text)
 
 
+def generate_distractors(word, label):
+    options  = [].joint(word)
+    if (label == 'DATE'):
+        print("generate distractors for date")
+    return options
 
 
 text = load_text(filename)
