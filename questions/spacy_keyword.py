@@ -8,7 +8,7 @@ filename = sys.argv[1]
 nbwords = 0
 
 #load spacy model
-nlp = spacy.load("en_core_web_md")
+nlp = spacy.load("en_core_web_trf")
 
 
 
