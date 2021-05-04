@@ -253,7 +253,7 @@ def generate(text):
     """
     document = nlp(text)
     sentences = document.sents
-    sentences = extract_clauses(sentences)
+    sentences += extract_clauses(sentences)
     sentences = preprocessing(sentences)
     questions = set()
 
