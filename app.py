@@ -1,5 +1,6 @@
 #!/usr/bin/python3
-from questions import gaps, boolean, wh
+from openie import StanfordOpenIE
+from questions import boolean, wh
 import sys
 
 def main():
@@ -14,6 +15,13 @@ def main():
     with open(filename, 'r') as file:
         text = file.read()
 
+
+    
+    with StanfordOpenIE() as client:
+        text = "They live in a beautiful house"
+        print('Text: %s.' % text)
+        for triple in client.annotate(text):
+            print('|-', triple)
     # Length limit
     text = text[:1000000]
     
