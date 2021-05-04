@@ -14,9 +14,13 @@ nlp = spacy.load('en_core_web_sm')
 def who(sentence, entity):
     question = sentence.text.replace(entity.text, 'who')
     question = question.replace('who\'s', 'whose')
+    question = question.replace('to who', 'to whom')
+    question = question.replace('of who', 'of whom')
+    question = question.replace('with who', 'with whom')
     return Question(question, [entity.text], 0)
 
 def when(sentence, entity):
+    # question = "When " + adverb + subject + verb + compl ?
     question = sentence.text.replace(entity.text, 'when')
     return Question(question, [entity.text], 0)
 
@@ -58,9 +62,9 @@ def generate(text):
             elif label in ['MONEY']:
                 question = how_much(sentence, entity)
             else: continue # Go to the next iteration
-            
-            question.replace('.', '?')
-            question = question.capitalize()
+
+            question.stem = question.stem.replace('.', '?')
+            question.stem = question.stem.capitalize()
             questions.add(question)
 
     return questions
@@ -75,6 +79,7 @@ FAC Buildings, airports, highways, bridges, etc.
 PRODUCT Objects, vehicles, foods, etc. (Not services.)
 MONEY Monetary values, including unit.
 QUANTITY Measurements, as of weight or distance.
+ORG Companies, agencies, institutions, etc.
 
 > Unsupported
 ORDINAL “first”, “second”, etc.
@@ -83,7 +88,6 @@ EVENT Named hurricanes, battles, wars, sports events, etc.
 WORK_OF_ART Titles of books, songs, etc.
 LAW Named documents made into laws.
 LANGUAGE Any named language.
-ORG Companies, agencies, institutions, etc.
 TIME Times smaller than a day.
 PERCENT Percentage, including ”%“.
 """
