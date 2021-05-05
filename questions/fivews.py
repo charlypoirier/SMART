@@ -1,5 +1,6 @@
 import spacy
 from classes.question import Question
+from libs.language import *
 
 """
 Questions à réponses courtes
@@ -8,8 +9,6 @@ Ce qui serait bien, ce serait de générer un résumé du
 texte (Aziz?) et utiliser le résumé comme entrée pour
 générer des questions avec le code ci-dessous.
 """
-
-nlp = spacy.load('en_core_web_sm')
 
 def who(sentence, entity):
     question = sentence.text.replace(entity.text, 'who')
@@ -51,9 +50,6 @@ def find_subj_of(verb_list):
     if token.dep_ == "nsubj":
       nsubj_token=token
       return flatten_tree(nsubj_token.subtree)
-      
-  
-
 
 def list_of_token_to_str(list_token):
   res=""
@@ -139,19 +135,19 @@ def generate_wh(text):
         for token in sentence:
             if (str(token) == "in"):
                 question = generate_where(document,token)
-                if( question is not None):
+                if(question is not None):
                     questions.add(question)
             if (token.ent_type_=="DATE"):
                 question = generate_when(document,token)
-                if( question is not None):
+                if(question is not None):
                     questions.add(question)
             if (token.dep_=="dobj"):
                 question = generate_what(document,token)
-                if( question is not None):
+                if(question is not None):
                     questions.add(question)
             if (token.pos_=="ADJ"):
                 question = generate_how(document,token)
-                if( question is not None):
+                if(question is not None):
                     questions.add(question)
 
     return questions

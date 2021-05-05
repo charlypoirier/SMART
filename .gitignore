@@ -134,3 +134,6 @@ dmypy.json
 
 # VSCode settings
 .vscode/
+
+# Heavy files
+data/embeddings

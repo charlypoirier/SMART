@@ -1,5 +1,6 @@
 import sys
 import spacy
+from libs.language import *
 
 if (len(sys.argv) != 2):
     print('Usage: python3 app.py gaps_input.txt')
@@ -10,8 +11,6 @@ with open(filename, 'r') as file:
     text = file.read()
     print(text)
     # Call a module?
-
-nlp = spacy.load('en_core_web_trf')
 
 #Analyse text
 doc = nlp(text)

@@ -1,12 +1,10 @@
 # Tout comprendre à spacy
 import spacy
 import sys
+from libs.language import *
 
-
-nlp = spacy.load('en_core_web_trf')
 labels = nlp.get_pipe("tagger").labels
 ent  = nlp.get_pipe("ner").labels
-
 
 def print_non_punct(doc):
     for token in doc:

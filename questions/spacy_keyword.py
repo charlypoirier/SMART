@@ -7,27 +7,45 @@ from string import punctuation
 from gensim.models import KeyedVectors
 from gensim.scripts.glove2word2vec import glove2word2vec
 import re
+from libs.language import *
 
-
-filename = sys.argv[1]
-nbwords = 0
-
-#load spacy model
-nlp = spacy.load("en_core_web_trf")
-
+# TODO: Mettre ça dans gaps.py ?
 
 glove_file = './data/embeddings/glove.6B.100d.txt'
 tmp_file = './data/embeddings/word2vec-glove.6B.100d.txt'
 
 model = KeyedVectors.load_word2vec_format(tmp_file)
-print("Model loaded", flush=True)
 
-# load text function
-def load_text(filename):
-    with open(filename, 'r') as file:
-        text = file.read()
-    text = text.replace('\n', ' ')
-    return text
+
+def generate(text):
+    nbwords = int(len(text.split())*0.06)
+    output = get_hotwords(text)
+    entities = get_entities(text)
+    keywords = entities
+    nkeywords = {}
+    if len(keywords) > nbwords:
+        i  = 0
+        for k,v in keywords.items():
+            nkeywords[k] = v
+            i = i+1
+            if (i > nbwords):
+                break
+        keywords = nkeywords
+    #if len(keywords) > nbwords:
+    #    keywords = random.sample(sorted(keywords), nbwords)
+
+    gap_text = replace_kwords(text, keywords)
+    [options, answers] = generate_distractors(keywords)
+
+    #Création de la liste de questions
+    questions_list_Aik = []
+   
+    for i in range(len(options)):
+        gap_text_n = gap_text + "\nAnswer gap n°" + str(i) 
+        q = Question(gap_text_n, options[i], answers[i])
+        questions_list_Aik.append(q)
+
+    return questions_list_Aik
 
 
 #hotword function
@@ -50,11 +68,9 @@ def get_entities(text):
     doc = nlp(text)
     accept_ent = ['NORP', 'DATE', 'TIME', 'ORDINAL', 'CARDINAL']
     for ent in doc.ents:
-        print('[',ent.label_ , '(', spacy.explain(ent.label_),") ] " , ent.text)
         if(ent.label_ in accept_ent):
             result[ent.text] = ent.label_
     return result
-
 
 
 def replace_kwords(text, keywords):
@@ -79,7 +95,6 @@ def generate_distractors(keywords):
     options = []
     answers = []
     for k,v in keywords.items():
-        print ("key = ", k, " - value = ", v) 
         option = [str(k)]
         similar  = []
         if (v == 'ORDINAL'):
@@ -90,7 +105,6 @@ def generate_distractors(keywords):
             similar = model.most_similar(positive=[str(k).lower()], topn=3)
             option = []
             t = k.lower()
-            print(t)
             option = [t]
         elif (v == 'TIME'):
             
@@ -130,15 +144,12 @@ def generate_distractors(keywords):
             regexp2 = re.compile('( [1-9],| [12]\d,| 3[01],)')
             nk = ' ' + str(k) + ' '
             if regexp.search(nk):
-                print("matched 1")
                 day = random.randint(1,31)
                 ret = re.sub('( [1-9] | [12]\d | 3[01] )', ' ' +str(day) + ' ', nk)
                 day = random.randint(1,31)
                 ret2 = re.sub('( [1-9] | [12]\d | 3[01] )',' ' +str(day) + ' ', nk)
-                print("ret2 : ", ret2)
                 similar = [(ret[1:],11), (ret2[1:], 22)]
             elif regexp2.search(nk): 
-                print("matched 2")
                 day = random.randint(1,31)
                 ret = re.sub('( [1-9],| [12]\d,| 3[01],)', ' ' +str(day) + ',', nk)
                 day = random.randint(1,31)
@@ -152,72 +163,7 @@ def generate_distractors(keywords):
                 option.append(str(item[0]))
         ans = option[0]
         random.shuffle(option)
-        print ("Options : " ,option)
-        print("Index of answer is : ", option.index(ans))
         answers.append(option.index(ans))
         options.append(option)
     return [options, answers]
 
-"""text = load_text(filename)
-# get hot words and remove keywords
-nbwords = int(len(text.split())*0.06)
-output = get_hotwords(text)
-entities = get_entities(text)
-print("text : ", text, "\nnbwords = ", nbwords , "\n keywords = ", output)
-print("entities : ", entities)
-keywords = {}
-
-#for i in range (len(output)):
-#    if (output[i] in get_entities(text)):
-#        keywords.append(output[i])
-
-keywords = entities
-if len(keywords) > nbwords:
-    keywords = random.sample(keywords, nbwords)
-
-#if len(keywords) < nbwords:
-#    keywords = keywords  + random.sample(output,nbwords - len(keywords))
-
-
-print(keywords)
-generate_distractors(keywords)
-replace_kwords(text, keywords)
-"""
-
-def generate(text):
-    
-    nbwords = int(len(text.split())*0.06)
-    output = get_hotwords(text)
-    entities = get_entities(text)
-    print("text : ", text, "\nnbwords = ", nbwords , "\n keywords = ", output)
-    print("entities : ", entities)
-    keywords = entities
-   
-    nkeywords = {}
-    if len(keywords) > nbwords:
-        i  = 0
-        for k,v in keywords.items():
-            nkeywords[k] = v
-            i = i+1
-            if (i > nbwords):
-                break
-        keywords = nkeywords
-    #if len(keywords) > nbwords:
-    #    keywords = random.sample(sorted(keywords), nbwords)
-
-    print("Keywords : ", keywords)
-    gap_text = replace_kwords(text, keywords)
-    [options, answers] = generate_distractors(keywords)
-
-
-    #Création de la liste de questions
-    questions_list_Aik = []
-   
-    for i in range(len(options)):
-        print("Generating question :", str(i))
-        gap_text_n = gap_text + "\nAnswer gap n°" + str(i) 
-        q = Question(gap_text_n, options[i], answers[i])
-        questions_list_Aik.append(q)
-
-
-    return questions_list_Aik

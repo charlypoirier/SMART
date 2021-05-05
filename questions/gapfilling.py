@@ -1,4 +1,3 @@
-#!/usr/bin/python3
 import sys
 import os
 from classes.question import Question
@@ -6,37 +5,31 @@ from sklearn.feature_extraction.text import CountVectorizer
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 from transformers import pipeline
-#from pattern.text.en import singularize
 from nltk.stem import WordNetLemmatizer
 import nltk
 import spacy
 import gensim
 from gensim.test.utils import datapath, get_tmpfile
 from gensim.models import KeyedVectors
-
+from libs.language import *
 
 glove_file = '../data/embeddings/glove.6B.300d.txt'
 tmp_file = '../data/embeddings/word2vec-glove.6B.300d.txt'
 
-nltk.download('wordnet')
+nltk.download('wordnet', quiet=True)
 wnl = WordNetLemmatizer()
 unmasker = pipeline('fill-mask', model='bert-base-uncased')
 
-print("--------------------------\n")
-
 #if not os.path.isfile(glove_file):
-#    print("Glove embeddings not found. Please download and place them in the following path: " + glove_file)
 
 def bert_tags(text, ref_word, ref_pos, nlp):
    
     distractors = []
 
     pos  = text.find("[MASK]")
-    print("Position of keywords :" , pos)
     
     # unmask
     unmask = unmasker(text, top_k = 10)
-    #print(unmask)
 
     for item in unmask: 
         text = item["sequence"]
@@ -49,12 +42,8 @@ def bert_tags(text, ref_word, ref_pos, nlp):
                 break
                 #    text_words_list.append(token.text)
 
-        print("Unmasked word for ", ref_word, "(", ref_pos, ")  is ", unmask_word, "(", unmask_pos_,")") 
         if (ref_pos == unmask_pos_ and ref_word != unmask_word):
             distractors.append(unmask_word)
-
-    print("Keywords for ", ref_word, ':', distractors) 
-    print("\n\n")
 
     return distractors[:4]
 
@@ -88,7 +77,6 @@ def formated_keywords(text):
         nb_diff_words = 0
         sg_words_to_add = []
         for word in n_keywords:
-            #print(word)
             word_sg = wnl.lemmatize(word) #Mots au singulier
             if word != word_sg:
                 if word_sg not in n_keywords:
@@ -99,7 +87,6 @@ def formated_keywords(text):
         for word_to_add in sg_words_to_add:
             if word_to_add not in n_keywords:
                 n_keywords.append(word_to_add)
-        #print("nb-diff_words", nb_diff_words, nbwords, origin_nbwords)
         if (origin_nbwords - nb_diff_words > 0):
             nbwords += (origin_nbwords - nb_diff_words)
         else:
@@ -110,7 +97,6 @@ def formated_keywords(text):
             words_C.append(word.capitalize())
         n_keywords = n_keywords + words_C
 
-        print("\nKeywords of article", n_keywords, '\n')
     return n_keywords
 
 
@@ -118,30 +104,21 @@ def find_distractors(word):
     #from gensim.scripts.glove2word2vec import glove2word2vec
     #glove2word2vec(glove_file, tmp_file)
     model = KeyedVectors.load_word2vec_format(tmp_file)
-    print("distractors for ", word)
-    print(model.most_similar(positive=[word], topn=3))
 
 
 
 def bert_sentences(text, keywords):
-    nlp = spacy.load('en_core_web_sm')
     mask = "[MASK]"
     for word in keywords:
         text = text.replace(word, mask)
         text = text.replace(word.capitalize(), mask)
         text = text.replace('[MASK]s', mask)
-        print("keyword :", word)
     doc = nlp(text)
     for sent in doc.sents:
         sentence = str(sent)
         if(sentence.count("[MASK]") == 1):
-            print(sentence)
             usent = unmasker(sentence)
-            #print(truc["token_str"])
-            #print(truc)
             for item in usent:
-                print(item["token_str"])
-            print("\n\n")
 
 # Fonction qui parcourt le texte pour trouver les mots clés à cacher.
 # Pour chaque mot clé, on stocke le mot caché et on trouve els distracteurs
@@ -151,7 +128,6 @@ def bert_sentences(text, keywords):
 # - le texte avec les trous _i_
 def through_text(text):
     options = []
-    nlp = spacy.load('en_core_web_sm')
     text_tokens_list = nlp(text)#On récupère chaque mot du texte et ses informations
     text_words_list =[]
 
@@ -160,7 +136,6 @@ def through_text(text):
     for token in text_tokens_list:
         text_words_list.append(token.text)
         text_tags[token.text] = token.pos_
-    print ("TT")
 
     num_gap = 0
     num_word = 0
@@ -183,9 +158,6 @@ def through_text(text):
 
 
             # Call to bert_tags
-            print(" --- call to bert_tags --- ")
-            print("Masked word : ", word, " - masked word tag ", text_tags[word])
-            print("Masked text : ", mask_text, '\n')
             
             tmp = bert_tags(mask_text, word, text_tags[word], nlp)
             if len(tmp) < 3 :
@@ -193,7 +165,6 @@ def through_text(text):
                 tmp2 = unmasker(mask_text)
                 for w in tmp2:
                     tmp.append(w["token_str"])
-                print(tmp)
                 options.append(tmp)
             else:
                 options.append(tmp)
@@ -215,21 +186,15 @@ def through_text(text):
 def generate(text):
     #On crée les réponses, les distracteurs et le texte avec les trous
     [tab_answers, distractors, gap_text, im_options] = through_text(text)
-    print(im_options)
     """Debug
-    print ("\n\n**********Gap Text************ ", "\n\n") 
-    print(gap_text)
 
-    print ("\n\n**********Réponses************ ", "\n\n") 
     
-    print (text)
     """
 
     #Création de la liste de questions
     questions_list_Aik = []
    
     for i in range(len(im_options)):
-        print("Generating question :", str(i))
         gap_text_n = gap_text + "\nAnswer gap n°" + str(i) 
         q = Question(gap_text_n, im_options[i], 0)
         questions_list_Aik.append(q)
@@ -237,18 +202,15 @@ def generate(text):
 
     """
     for groupe in distractors:
-        print (i, tab_answers[i])
         options = []
         options.append(tab_answers[i])
         for prop in groupe:
             option = prop["token_str"]
             options.append(option)
-            print (option)
         gap_text_n = gap_text + "\nAnswer gap n°" + str(i)
         q = Question(gap_text_n, im_options, 0)
         questions_list_Aik.append(q)
         questions_list_Aik.append(q)
-        print("\n\n")
         i += 1
     """
     return questions_list_Aik
