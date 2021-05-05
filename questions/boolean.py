@@ -181,7 +181,7 @@ def extract_clauses(sentence_array):
     for sentence in sentence_array:
         for token in nlp(sentence.text):
             if (token.pos_ == "VERB" or token.pos_ == "AUX"):  # aux ?
-                clause_list = clause_list+visiterVerbe(token)
+                clause_list = clause_list + visiterVerbe(token)
     return clause_list
 
 
@@ -243,31 +243,54 @@ def negate_present_or_past_sentence(sentence_nlp_to_negate):
 
 def get_chunk_from_word(sentence_nlp, word):
     for c in sentence_nlp.noun_chunks:
-        print("search2")
         if search(word, c.text):
-            print("search")
             return c.text
     return "not found"
 
 
-def replace_wh_words(sentence_nlp):
+def replace_which_he_she_words(text):
+    doc = nlp(text)
+    sentences = doc.sents
     new_text = ""
-    last_subject = "undefined"
-    for token in sentence_nlp:
-        if token.dep_ == "pobj":
-            last_subject = token.text
-        if token.tag_ == "WDT" and not token.i == 0:
-            if last_subject != "undefined":
-                c = get_chunk_from_word(sentence_nlp, last_subject)
-                if c != "not found":
-                    new_text += ". " + c.capitalize()
+    last_person_subject = "undefined"
+    for sentence_nlp in sentences:
+        last_subject = "undefined"
+        for token in sentence_nlp:
+            # print("---token: " + token.text + " ; tag : " + token.tag_ + " ; pos : " + token.pos_ + " ; dep : " +
+            #      token.dep_ + " ; head: " + token.head.text + " ;right-edge: " + token.right_edge.text + " ; sent : "
+            #      , token.ent_iob)
+            if (token.tag_ == "NNP" or token.tag_ == "NN") and token.dep_ == "nsubj":
+                last_person_subject = token.text
+                print("last subject token:", last_person_subject)
+
+            if token.tag_ == "PRP" and token.dep_ == "nsubj" and last_person_subject != "undefined":  # case : "he" or "she"
+                c = get_chunk_from_word(doc, last_person_subject)
+                print(token.text)
+                print("noun chunk ", c)
+                if c != "not found" and (token.text == "he"
+                                         or token.text == "she"
+                                         or token.text == "She"
+                                         or token.text == "He"):
+                    new_text += " " + c
+                else:
+                    new_text += " " + token.text
+            elif token.dep_ == "pobj":
+                last_subject = token.text
+                new_text += " " + token.text
+            elif token.tag_ == "WDT" and not token.i == 0: # case : which
+                if last_subject != "undefined":
+                    c = get_chunk_from_word(sentence_nlp, last_subject)
+                    if c != "not found":
+                        new_text += ". " + c.capitalize()
+                    else:
+                        new_text += " " + token.text
                 else:
                     new_text += " " + token.text
             else:
                 new_text += " " + token.text
-        else:
-            new_text += " " + token.text
+
     return new_text
+
 
 
 def preprocessing(sentences):
@@ -281,10 +304,10 @@ def generate(text):
     """
     Generate and return a set of boolean questions.
     """
-    text = replace_wh_words(text)
-    document = nlp(text)
-    sentences = document.sents
-    sentences += extract_clauses(sentences)
+    text = replace_which_he_she_words(text)
+    doc = nlp(text)
+    sentences = doc.sents
+    sentences = extract_clauses(sentences)
     sentences = preprocessing(sentences)
     questions = set()
 
