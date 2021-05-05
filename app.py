@@ -40,15 +40,6 @@ def main():
 
 
     
-    """with StanfordOpenIE() as client:
-        text = "They live in a beautiful house"
-        print('Text: %s.' % text)
-        for triple in client.annotate(text):
-            print('|-', triple)
-    # Length limit
-    text = text[:1000000]"""
-
-    
     
     # Generate questions
     questionnaire = set()
