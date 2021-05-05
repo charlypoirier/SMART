@@ -77,9 +77,10 @@ def replace_kwords(text, keywords):
 
 def generate_distractors(keywords):
     options = []
+    answers = []
     for k,v in keywords.items():
         print ("key = ", k, " - value = ", v) 
-        option = [k]
+        option = [str(k)]
         similar  = []
         if (v == 'ORDINAL'):
             similar = model.most_similar(positive=[str(k)], topn=3)
@@ -149,10 +150,13 @@ def generate_distractors(keywords):
             similar = [('test1',11), ('test2', 22)]
         for item in similar:
                 option.append(str(item[0]))
+        ans = option[0]
         random.shuffle(option)
         print ("Options : " ,option)
+        print("Index of answer is : ", option.index(ans))
+        answers.append(option.index(ans))
         options.append(option)
-    return options
+    return [options, answers]
 
 """text = load_text(filename)
 # get hot words and remove keywords
@@ -203,7 +207,8 @@ def generate(text):
 
     print("Keywords : ", keywords)
     gap_text = replace_kwords(text, keywords)
-    options = generate_distractors(keywords)
+    [options, answers] = generate_distractors(keywords)
+
 
     #Création de la liste de questions
     questions_list_Aik = []
@@ -211,7 +216,7 @@ def generate(text):
     for i in range(len(options)):
         print("Generating question :", str(i))
         gap_text_n = gap_text + "\nAnswer gap n°" + str(i) 
-        q = Question(gap_text_n, options[i], 0)
+        q = Question(gap_text_n, options[i], answers[i])
         questions_list_Aik.append(q)
 
 
