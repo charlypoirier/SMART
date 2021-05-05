@@ -66,6 +66,8 @@ def replace_kwords(text, keywords):
         text = text.replace(nword, " _" + str(i) +  "_." )
         nword = ' ' + word + ','
         text = text.replace(nword, " _" + str(i) +  "_,") 
+        nword = ' ' + word + '-'
+        text = text.replace(nword, " _" + str(i) +  "_-") 
         i = i+1
     text = text[1:]
     return text
@@ -81,8 +83,12 @@ def generate_distractors(keywords):
             similar = model.most_similar(positive=[str(k)], topn=3)
         elif (v == 'CARDINAL'):
             similar = model.most_similar(positive=[str(k)], topn=3)
-        # elif (v == 'NORP'):
-        #    similar = model.most_similar(positive=[str(k)], topn=3)
+        elif (v == 'NORP'):
+            similar = model.most_similar(positive=[str(k).lower()], topn=3)
+            option = []
+            t = k.lower()
+            print(t)
+            option = [t]
         else  :
             similar = [('test1',11), ('test2', 22)]
         for item in similar:
@@ -135,8 +141,7 @@ def generate(text):
             i = i+1
             if (i > nbwords):
                 break
-
-    keywords = nkeywords
+        keywords = nkeywords
     #if len(keywords) > nbwords:
     #    keywords = random.sample(sorted(keywords), nbwords)
 
