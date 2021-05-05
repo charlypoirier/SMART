@@ -6,6 +6,8 @@ from collections import Counter
 from string import punctuation
 from gensim.models import KeyedVectors
 from gensim.scripts.glove2word2vec import glove2word2vec
+import re
+
 
 filename = sys.argv[1]
 nbwords = 0
@@ -61,13 +63,13 @@ def replace_kwords(text, keywords):
     i = 0
     for word in keywords:
         nword = ' ' + word + ' '
-        text = text.replace(nword, " _" + str(i) +  "_ " )
+        text = text.replace(nword, " _" + str(i) +  "_ ", 1)
         nword = ' ' + word + '.'
-        text = text.replace(nword, " _" + str(i) +  "_." )
+        text = text.replace(nword, " _" + str(i) +  "_.", 1)
         nword = ' ' + word + ','
-        text = text.replace(nword, " _" + str(i) +  "_,") 
+        text = text.replace(nword, " _" + str(i) +  "_,", 1) 
         nword = ' ' + word + '-'
-        text = text.replace(nword, " _" + str(i) +  "_-") 
+        text = text.replace(nword, " _" + str(i) +  "_-", 1) 
         i = i+1
     text = text[1:]
     return text
@@ -89,6 +91,60 @@ def generate_distractors(keywords):
             t = k.lower()
             print(t)
             option = [t]
+        elif (v == 'TIME'):
+            
+            regexp = re.compile('([0-1]?[0-9]|2[0-3]):[0-5][0-9]')
+            regexp2 = re.compile('([0-5][0-9]|[1-9])')
+            if regexp.search(str(k)):
+
+                stringtorep = str(k)
+                
+                h = random.randint(0,23)
+                m = random.randint(0,59)
+                repl = str(h) + ':' + str(f'{m:02d}')
+                ret  = re.sub('([0-1]?[0-9]|2[0-3]):[0-5][0-9]', repl, stringtorep)
+                
+                h = random.randint(0,23)
+                m = random.randint(0,59)
+                repl = str(h) + ':' + str(f'{m:02d}')
+                ret2  = re.sub('([0-1]?[0-9]|2[0-3]):[0-5][0-9]', repl, stringtorep)
+            
+                similar = [(ret,11), (ret2, 22)]
+            elif regexp2.search(str(k)):
+                stringtorep = str(k)
+                
+                m = random.randint(0,59)
+                repl = str(m)
+                ret  = re.sub('([0-5][0-9]|[1-9])', repl, stringtorep)
+                m = random.randint(0,59)
+                repl = str(m)
+                ret2  = re.sub('([0-5][0-9]|[1-9])', repl, stringtorep)
+
+                similar = [(ret,11), (ret2, 22)]
+
+            else:
+                similar = [('test1',11), ('test2', 22)]
+        elif (v == 'DATE'):
+            regexp  = re.compile('( [1-9] | [12]\d | 3[01] )')
+            regexp2 = re.compile('( [1-9],| [12]\d,| 3[01],)')
+            nk = ' ' + str(k) + ' '
+            if regexp.search(nk):
+                print("matched 1")
+                day = random.randint(1,31)
+                ret = re.sub('( [1-9] | [12]\d | 3[01] )', ' ' +str(day) + ' ', nk)
+                day = random.randint(1,31)
+                ret2 = re.sub('( [1-9] | [12]\d | 3[01] )',' ' +str(day) + ' ', nk)
+                print("ret2 : ", ret2)
+                similar = [(ret[1:],11), (ret2[1:], 22)]
+            elif regexp2.search(nk): 
+                print("matched 2")
+                day = random.randint(1,31)
+                ret = re.sub('( [1-9],| [12]\d,| 3[01],)', ' ' +str(day) + ',', nk)
+                day = random.randint(1,31)
+                ret2 = re.sub('( [1-9],| [12]\d,| 3[01],)',' ' +str(day) + ',', nk)
+                similar = [(ret[1:],11), (ret2[1:], 22)]
+            else :
+                similar = [('date1',11), ('date2', 22)]
         else  :
             similar = [('test1',11), ('test2', 22)]
         for item in similar:
