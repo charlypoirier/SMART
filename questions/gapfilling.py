@@ -118,7 +118,6 @@ def bert_sentences(text, keywords):
         sentence = str(sent)
         if(sentence.count("[MASK]") == 1):
             usent = unmasker(sentence)
-            for item in usent:
 
 # Fonction qui parcourt le texte pour trouver les mots clés à cacher.
 # Pour chaque mot clé, on stocke le mot caché et on trouve els distracteurs
