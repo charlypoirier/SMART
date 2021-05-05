@@ -1,30 +1,19 @@
-"""
-Boolean questions
-1) Make a sentence positive/negative
-2) Replace adjectives with their synonym/antonym
-3) Replace pronouns with corresponding nouns
-"""
-
 import random
 import spacy
 from classes.question import Question
 from PyDictionary import PyDictionary
 from re import search
+from libs.language import *
 
-# Global variables
-nlp = spacy.load('en_core_web_sm')
-dictionary = PyDictionary()
-
-
-def cartesian_product(combi_gauche, combi_droite):
-    if len(combi_gauche) > 0 and len(combi_droite) == 0:
-        return combi_gauche
-    elif len(combi_gauche) == 0 and len(combi_droite) > 0:
-        return combi_droite
+def cartesian_product(left, right):
+    if len(left) > 0 and len(right) == 0:
+        return left
+    elif len(left) == 0 and len(right) > 0:
+        return right
     else:
         res = []
-        for elem in combi_gauche:
-            for elem2 in combi_droite:
+        for elem in left:
+            for elem2 in right:
                 res.append(elem+elem2)
         return res
 
@@ -66,17 +55,17 @@ def tt_combi_Subj(token):
             list_combi.append(vide)
         return list_combi
     else:
-        combi_gauche = []
-        combi_droite = []
+        left = []
+        right = []
         for leftchild in token.lefts:
-            combi_gauche = cartesian_product(
-                combi_gauche, tt_combi_Obj(leftchild))
+            left = cartesian_product(
+                left, tt_combi_Obj(leftchild))
         for rightchild in token.rights:
-            combi_droite = cartesian_product(
-                combi_droite, tt_combi_Obj(rightchild))
-        appendtokenToList(token, combi_gauche, combi_droite)
-        # combi_droite.append(vide)
-        list_combi = cartesian_product(combi_gauche, combi_droite)
+            right = cartesian_product(
+                right, tt_combi_Obj(rightchild))
+        appendtokenToList(token, left, right)
+        # right.append(vide)
+        list_combi = cartesian_product(left, right)
         if (token.dep_ != "pobj" and token.dep_ != "mark" and token.dep_ != "prep" and token.dep_ != "nummod" and token.dep_ != "pcomp" and
                 token.dep_ != "compound" and token.dep_ != "dative" and token.dep_ != "nsubjpass" and token.dep_ != "poss" and token.dep_ != "quantmod" and token.dep_ != "agent" and token.dep_ != "expl"):  # pobj et prep sont obligatoires
             list_combi.append(vide)
@@ -98,16 +87,16 @@ def tt_combi_Obj(token):
             list_combi.append(vide)
         return list_combi
     else:
-        combi_gauche = []
-        combi_droite = []
+        left = []
+        right = []
         for leftchild in token.lefts:
-            combi_gauche = cartesian_product(
-                combi_gauche, tt_combi_Obj(leftchild))
+            left = cartesian_product(
+                left, tt_combi_Obj(leftchild))
         for rightchild in token.rights:
-            combi_droite = cartesian_product(
-                combi_droite, tt_combi_Obj(rightchild))
-        appendtokenToList(token, combi_gauche, combi_droite)
-        list_combi = cartesian_product(combi_gauche, combi_droite)
+            right = cartesian_product(
+                right, tt_combi_Obj(rightchild))
+        appendtokenToList(token, left, right)
+        list_combi = cartesian_product(left, right)
         if (token.dep_ != "dobj" and token.dep_ != "expl" and token.dep_ != "aux" and token.dep_ != "quantmod" and token.dep_ != "mark" and token.dep_ != "pobj" and token.dep_ != "pcomp"
             and token.dep_ != "prep" and token.dep_ != "nsubj" and token.dep_ != "nsubjpass" and token.dep_ != "poss" and token.dep_ != "pobj" and token.dep_ != "conj" and token.dep_ != "dative" and token.dep_ != "agent"
                 and token.dep_ != "compound" and token.dep_ != "npadvmod" and token.dep_ != "auxpass" and token.dep_ != "aux" and token.dep_ != "nmod" and token.dep_ != "attr" and token.dep_ != "nummod"):  # pobj et prep sont obligatoires
@@ -250,7 +239,8 @@ def get_chunk_from_word(sentence_nlp, word):
     return "not found"
 
 
-def replace_wh_words(sentence_nlp):
+def replace_wh_words(text):
+    sentence_nlp = nlp(text)
     new_text = ""
     last_subject = "undefined"
     for token in sentence_nlp:
@@ -282,9 +272,8 @@ def generate(text):
     Generate and return a set of boolean questions.
     """
     text = replace_wh_words(text)
-    document = nlp(text)
-    sentences = document.sents
-    sentences += extract_clauses(sentences)
+    sentences = nlp(text).sents
+    sentences = extract_clauses(sentences)
     sentences = preprocessing(sentences)
     questions = set()
 
