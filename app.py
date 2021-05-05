@@ -14,13 +14,6 @@ def main():
     with open(filename, 'r') as file:
         text = file.read()
 
-
-    
-    with StanfordOpenIE() as client:
-        text = "They live in a beautiful house"
-        print('Text: %s.' % text)
-        for triple in client.annotate(text):
-            print('|-', triple)
     # Length limit
     text = text[:1000000]
     
