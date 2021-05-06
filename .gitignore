@@ -1,6 +1,7 @@
 # Interrogat'IF
 env/
 questionnaire.txt
+*.aiken
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
