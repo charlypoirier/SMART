@@ -196,14 +196,6 @@ def visiterVerbe(token):
     return clause_list
 
 
-def extract_clauses(sentence_array):
-    clause_list = []
-    for sentence in sentence_array:
-        for token in nlp(sentence.text):
-            if (token.pos_ == "VERB" or token.pos_ == "AUX"):  # aux ?
-                clause_list = clause_list + visiterVerbe(token)
-    return clause_list
-
 
 def replace_adjectives_with_synonyms(sentence):
     document = nlp(sentence)

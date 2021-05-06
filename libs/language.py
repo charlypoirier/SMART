@@ -178,7 +178,7 @@ def extract_clauses(sentence_array):
         for token in nlp(sentence.text):
             if (token.pos_ == "VERB" or token.pos_ == "AUX"):  # aux ?
                 clause_list = clause_list + visiterVerbe(token)
-    return set(clause_list)
+    return set(preprocessing(clause_list))
 
 
 def preprocessing(sentences):
@@ -188,4 +188,4 @@ def preprocessing(sentences):
         sentences[i] = sentences[i].replace(")", '')
         sentences[i] = sentences[i].replace("(", '')
         sentences[i] = sentences[i].replace("  ", ' ')
-    return sentences
+    return list(set(sentences))

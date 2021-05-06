@@ -135,6 +135,8 @@ def generate_what(doc,token):
       return Question("what "+"does "+str(find_subj_of(verb_list))+" "+str(verb_list[0].lemma_),[" "],0)
     elif (verb_list[0].tag_=="VBP"): #present !=3eme personne
       return Question("what "+"do "+str(find_subj_of(verb_list))+" "+str(verb_list[0].lemma_),[" "],0)
+  elif (len(verb_list)==1 and verb_list[0].pos_=="AUX" ):
+      return Question("what "+str(verb_list[0])+" "+str(find_subj_of(verb_list)),[" "],0)
 
 
 def generate_wh(text):
@@ -152,7 +154,7 @@ def generate_wh(text):
                 question = generate_when(document,token)
                 if(question is not None):
                     questions.add(question)
-            if (token.dep_=="dobj" and token.pos_!="PRON"):
+            if ((token.dep_=="dobj" and token.pos_!="PRON") or (token.dep_=="attr" and token.pos_=="NOUN")):
                 question = generate_what(document,token)
                 if(question is not None):
                     questions.add(question)
