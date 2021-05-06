@@ -156,6 +156,7 @@ def linked_to(token,list_pos):
 
 
 def generate_wh(text):
+    #document = nlp(text_rank_algorithm(text)).sents  <- uncomment for the extraction of important sentences only
     document = nlp(text).sents
     #summary_array=generate_summary_array(document)
     document = extract_clauses(document)

@@ -6,6 +6,7 @@ accessible from anywhere where this is imported.
 import spacy
 from PyDictionary import PyDictionary
 import math
+import pytextrank
 import re
 from eazymind.nlp.eazysum import Summarizer
 key = "dd93f8cf88609e887ace3169cf6892fd"
@@ -205,3 +206,14 @@ def generate_summary_array(document):
       paragraph = ' '.join(sentences[i:i+window])
       summary_array.append(summarizer.run(paragraph))
     return summary_array
+
+def text_rank_algorithm(text):
+    sentence_array=[]
+    nlp = spacy.load('en_core_web_sm')
+    nlp.add_pipe("textrank")
+    doc = nlp(text)
+    tr = doc._.textrank
+    for sent in tr.summary(limit_phrases=15, limit_sentences=5):
+        sentence_array.append(str(sent))
+    paragraph = ' '.join(sentence_array[:])
+    return str(paragraph)
