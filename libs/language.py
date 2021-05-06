@@ -5,7 +5,10 @@ accessible from anywhere where this is imported.
 
 import spacy
 from PyDictionary import PyDictionary
-
+import math
+import re
+from eazymind.nlp.eazysum import Summarizer
+key = "dd93f8cf88609e887ace3169cf6892fd"
 # Spacy model (sm=faster, trf=slower)
 nlp = spacy.load("en_core_web_trf")
 
@@ -189,3 +192,16 @@ def preprocessing(sentences):
         sentences[i] = sentences[i].replace("(", '')
         sentences[i] = sentences[i].replace("  ", ' ')
     return list(set(sentences))
+
+def generate_summary_array(document):
+    original_sentences = [str(sent) for sent in document]
+    sentences=original_sentences[:]
+    for j in range(len(sentences)):
+        sentences[j] = re.sub(r'\d', '#', sentences[j])
+    summarizer = Summarizer(key)
+    summary_array=[]
+    window=math.floor(len(sentences)/3)
+    for i in range(0,window):
+      paragraph = ' '.join(sentences[i:i+window])
+      summary_array.append(summarizer.run(paragraph))
+    return summary_array

@@ -131,8 +131,10 @@ def generate_who(doc,token):
 
 def generate_what(doc,token):
   parent= token.head
-  while (parent.pos_ !="VERB" and parent.pos_!= "AUX"):
+  stop_cpt=0
+  while (parent.pos_ !="VERB" and parent.pos_!= "AUX" and stop_cpt<5):
     parent=parent.head
+    stop_cpt=stop_cpt+1
   verb_list=extract_Verb(parent)
   if (len(verb_list)==2 and verb_list[0].pos_=="AUX" and verb_list[1].pos_=="VERB"):
     if ( verb_list[1].tag_=="VBG"):
@@ -155,8 +157,10 @@ def linked_to(token,list_pos):
 
 def generate_wh(text):
     document = nlp(text).sents
+    #summary_array=generate_summary_array(document)
     document = extract_clauses(document)
     #document = preprocessing(document)
+    #document=document.union(set(summary_array))
     questions = set()
     for sentence in document:
         for token in nlp(sentence):
