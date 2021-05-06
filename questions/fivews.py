@@ -83,7 +83,7 @@ def generate_when(doc,token_date):
     parent=parent.head
   verb_list=extract_Verb(parent)
   if (len(verb_list)==2 and verb_list[0].pos_=="AUX" and verb_list[1].pos_=="VERB"):
-    return Question("when "+str(verb_list[0])+" "+str(find_subj_of(verb_list))+" "+str(verb_list[1])+" "+str(find_obj_of(verb_list)),[" "],0)
+    return Question("when "+str(verb_list[0])+" "+str(find_subj_of(verb_list))+" "+str(verb_list[1])+" "+str(find_obj_of(verb_list)),[token_date.text],0)
 
 def generate_where(doc,token_place):
   parent= token_place.head
@@ -97,14 +97,14 @@ def generate_where(doc,token_place):
   if (token_place.head.pos_ =="VERB" and place_found==True):
     if (len(verb_list)==2 and verb_list[0].pos_=="AUX" and verb_list[1].pos_=="VERB"):
       if ( verb_list[1].tag_=="VBG"):
-        return Question("where "+str(verb_list[0])+" "+str(find_subj_of(verb_list))+" "+str(verb_list[1]))
+        return Question("where "+str(verb_list[0])+" "+str(find_subj_of(verb_list))+" "+str(verb_list[1]),[token_place],0)
     elif (len(verb_list)==1 and (verb_list[0].pos_=="VERB" or verb_list[0].lemma_=="have") ):
       if ( verb_list[0].tag_=="VBD"): #passé
-        return Question("where "+"did "+str(find_subj_of(verb_list))+" "+str(verb_list[0].lemma_),[" "],0)
+        return Question("where "+"did "+str(find_subj_of(verb_list))+" "+str(verb_list[0].lemma_),[token_place.text],0)
       elif ( verb_list[0].tag_=="VBZ"): #3eme personne present
-        return Question("where "+"does "+str(find_subj_of(verb_list))+" "+str(verb_list[0].lemma_),[" "],0)
+        return Question("where "+"does "+str(find_subj_of(verb_list))+" "+str(verb_list[0].lemma_),[token_place.text],0)
       elif (verb_list[0].tag_=="VBP"): #present !=3eme personne
-        return Question("where "+"do "+str(find_subj_of(verb_list))+" "+str(verb_list[0].lemma_),[" "],0)
+        return Question("where "+"do "+str(find_subj_of(verb_list))+" "+str(verb_list[0].lemma_),[token_place.text],0)
 
 def generate_how(doc,token):
   parent= token.head
@@ -114,9 +114,9 @@ def generate_how(doc,token):
     verb_list=extract_Verb(parent)
     if (len(verb_list)==1 and verb_list[0].pos_=="VERB" ): #au present
       if (verb_list[0].tag_=="VBZ"):
-        return Question("how "+"does" +" "+str(find_subj_of(verb_list))+ " "+str(verb_list[0].lemma_),[" "],0)
+        return Question("how "+"does" +" "+str(find_subj_of(verb_list))+ " "+str(verb_list[0].lemma_),[token.text],0)
       else :
-        return Question("how "+"do" +" "+str(find_subj_of(verb_list))+ " "+str(verb_list[0].lemma_),[" "],0)
+        return Question("how "+"do" +" "+str(find_subj_of(verb_list))+ " "+str(verb_list[0].lemma_),[token.text],0)
     elif (len(verb_list)==1 and verb_list[0].pos_=="AUX" ): #au present
       return Question("how "+str(verb_list[0])+" "+str(find_subj_of(verb_list)),[" "],0)
   
@@ -127,7 +127,7 @@ def generate_who(doc,token):
   if (parent.pos_ =="VERB" or parent.pos_=="AUX" ): 
     verb_list=extract_Verb(parent)
     if (len(verb_list)==1 ): 
-        return Question("who "+str(verb_list[0])+ " "+str(find_obj_of(verb_list)),[" "],0)
+        return Question("who "+str(verb_list[0])+ " "+str(find_obj_of(verb_list)),[token.text],0)
 
 def generate_what(doc,token):
   parent= token.head
@@ -138,16 +138,16 @@ def generate_what(doc,token):
   verb_list=extract_Verb(parent)
   if (len(verb_list)==2 and verb_list[0].pos_=="AUX" and verb_list[1].pos_=="VERB"):
     if ( verb_list[1].tag_=="VBG"):
-      return Question("what "+str(verb_list[0])+" "+str(find_subj_of(verb_list))+" "+str(verb_list[1]) ,[" "],0)
+      return Question("what "+str(verb_list[0])+" "+str(find_subj_of(verb_list))+" "+str(verb_list[1]),[token.text],0)
   elif (len(verb_list)==1 and (verb_list[0].pos_=="VERB" or verb_list[0].lemma_=="have")  ):
     if ( verb_list[0].tag_=="VBD"): #passé
-      return Question("what "+"did "+str(find_subj_of(verb_list))+" "+str(verb_list[0].lemma_),[" "],0)
+      return Question("what "+"did "+str(find_subj_of(verb_list))+" "+str(verb_list[0].lemma_),[token.text],0)
     elif ( verb_list[0].tag_=="VBZ"): #3eme personne present
-      return Question("what "+"does "+str(find_subj_of(verb_list))+" "+str(verb_list[0].lemma_),[" "],0)
+      return Question("what "+"does "+str(find_subj_of(verb_list))+" "+str(verb_list[0].lemma_),[token.text],0)
     elif (verb_list[0].tag_=="VBP"): #present !=3eme personne
-      return Question("what "+"do "+str(find_subj_of(verb_list))+" "+str(verb_list[0].lemma_),[" "],0)
+      return Question("what "+"do "+str(find_subj_of(verb_list))+" "+str(verb_list[0].lemma_),[token.text],0)
   elif (len(verb_list)==1 and verb_list[0].pos_=="AUX" ):
-      return Question("what "+str(verb_list[0])+" "+str(find_subj_of(verb_list)),[" "],0)
+      return Question("what "+str(verb_list[0])+" "+str(find_subj_of(verb_list)),[token.text],0)
 
 def linked_to(token,list_pos):
   for rtoken in token.rights:
@@ -167,22 +167,27 @@ def generate_wh(text):
             if (str(token) == "in"):
                 question = generate_where(document,token)
                 if(question is not None):
+                    question.stem = question.stem + '?'
                     questions.add(question)
             if (token.ent_type_=="DATE"):
                 question = generate_when(document,token)
                 if(question is not None):
+                    question.stem = question.stem + '?'
                     questions.add(question)
             if ((token.dep_=="dobj" and token.pos_!="PRON") or (token.dep_=="attr" and token.pos_=="NOUN")):
                 question = generate_what(document,token)
                 if(question is not None):
+                    question.stem = question.stem + '?'
                     questions.add(question)
             if (token.pos_=="ADJ"):
                 question = generate_how(document,token)
                 if(question is not None):
+                    question.stem = question.stem + '?'
                     questions.add(question)
             if ((token.pos_=="PROPN" or linked_to(token,["PROPN"])) and token.dep_=="nsubj"):
                 question = generate_who(document,token)
                 if(question is not None):
+                    question.stem = question.stem + '?'
                     questions.add(question)
 
     return questions
@@ -211,31 +216,7 @@ def generate(text):
                 question = how_much(sentence, entity)
             else: continue # Go to the next iteration
 
-            question.stem = question.stem.replace('.', '?')
-            question.stem = question.stem.capitalize()
+            question.stem = question.stem + '?'
             questions.add(question)
 
     return questions
-
-"""
-> Supported
-PERSON People, including fictional. NORP Nationalities or religious or political groups.
-DATE Absolute or relative dates or periods.
-GPE Countries, cities, states.
-LOC Non-GPE locations, mountain ranges, bodies of water.
-FAC Buildings, airports, highways, bridges, etc.
-PRODUCT Objects, vehicles, foods, etc. (Not services.)
-MONEY Monetary values, including unit.
-QUANTITY Measurements, as of weight or distance.
-ORG Companies, agencies, institutions, etc.
-
-> Unsupported
-ORDINAL “first”, “second”, etc.
-CARDINAL Numerals that do not fall under another type.
-EVENT Named hurricanes, battles, wars, sports events, etc.
-WORK_OF_ART Titles of books, songs, etc.
-LAW Named documents made into laws.
-LANGUAGE Any named language.
-TIME Times smaller than a day.
-PERCENT Percentage, including ”%“.
-"""

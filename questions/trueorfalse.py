@@ -19,16 +19,16 @@ def generate(text):
 
         while n == 2 and not is_negation_accepted(nlp(sentence)):
             n = random.randint(0, 1)
-
         if n == 0:
-            sentence = replace_adjectives_with_synonyms(sentence)
-            answer = True
+            [sentence, replaced] = replace_adjectives_with_synonyms(sentence)
+            answer = replaced
         elif n == 1:
-            sentence = replace_adjectives_with_antonyms(sentence)
-            answer = False
+            [sentence, replaced] = replace_adjectives_with_antonyms(sentence)
+            answer = not replaced
         else:
-            sentence = negate_present_or_past_sentence(nlp(sentence))
-            answer = False
+            [sentence, negated] = negate_present_or_past_sentence(nlp(sentence))
+            answer = not negated
+        sentence = sentence.strip() + "."
 
         question = Question(sentence, ["True", "False"], int(not answer))
         questions.add(question)
@@ -46,24 +46,30 @@ def generate(text):
 
 def replace_adjectives_with_synonyms(sentence):
     document = nlp(sentence)
+    replaced = False
     for token in document:
         if token.pos_ == "ADJ":
             synonyms = dictionary.synonym(token.text)
             if synonyms is not None:
+                replaced = True
                 synonym = random.choice(synonyms)
                 sentence = sentence.replace(token.text, synonym)
-    return sentence
+                break
+    return [sentence, replaced]
 
 
 def replace_adjectives_with_antonyms(sentence):
     document = nlp(sentence)
+    replaced = False
     for token in document:
         if token.pos_ == "ADJ":
             antonyms = dictionary.antonym(token.text)
             if antonyms is not None:
+                replaced = True
                 antonym = random.choice(antonyms)
                 sentence = sentence.replace(token.text, antonym)
-    return sentence
+                break
+    return [sentence, replaced]
 
 
 # test if there is already a negative formed verb  in the sentence
@@ -79,20 +85,25 @@ def is_negation_accepted(sentence_nlp_to_test):
 
 def negate_present_or_past_sentence(sentence_nlp_to_negate):
     new_sentence = ""
+    negated = False
     for token in sentence_nlp_to_negate:
         if hasattr(token, "pos_"):
             if token.pos_ == "AUX":
                 # 3rd person singular present or  non-3rd person singular present or past tense
                 if token.tag_ == "VBZ" or token.tag_ == "VBP" or token.tag_ == "VBD":
+                    negated = False
                     new_sentence += token.text + token.whitespace_ + "not" + token.whitespace_
                 else:
                     new_sentence += token.text_with_ws
             elif token.pos_ == "VERB":
                 if token.tag_ == "VBZ":  # 3rd person singular present
+                    negated = True
                     new_sentence += "doesn't" + token.whitespace_ + token.lemma_ + token.whitespace_
                 elif token.tag_ == "VBP":  # non-3rd person singular present
+                    negated = True
                     new_sentence += "don't" + token.whitespace_ + token.lemma_ + token.whitespace_
                 elif token.tag_ == "VBD":  # verb, past tens
+                    negated = True
                     new_sentence += "didn't" + token.whitespace_ + token.lemma_ + token.whitespace_
                 else:
                     new_sentence += token.text_with_ws
@@ -101,7 +112,7 @@ def negate_present_or_past_sentence(sentence_nlp_to_negate):
         else:
             if hasattr(token, 'text_with_ws'):
                 new_sentence += token.text_with_ws
-    return new_sentence
+    return [new_sentence, negated]
 
 
 def get_chunk_from_word(sentence_nlp, word):
