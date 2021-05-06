@@ -69,7 +69,7 @@ def main():
     elif choice == 3:
         from questions import fivews
         print("Generating questions...")
-        questionnaire = set.union(questionnaire, fivews.generate(text))
+        questionnaire = set.union(questionnaire, fivews.generate_wh(text))
 
     # Save to a file in Aikan format
     print("Saving...")
