@@ -307,9 +307,3 @@ def replace_which_he_she_words(text):
                 new_text += " " + token.text
     return new_text
 
-
-def preprocessing(sentences):
-    for i in range(len(sentences)):
-        sentences[i] = sentences[i].replace("-", '')
-        sentences[i] = sentences[i].replace(",", '')
-    return sentences
