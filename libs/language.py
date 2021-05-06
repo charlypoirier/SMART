@@ -156,7 +156,7 @@ def visiterVerbe(token):
         if (child.dep_ == "dobj"):
             # (nsubj)  (verb) (dobj vers NOUN)
             clause_list = clause_list + \
-                visiter_regle(token, child, ["nsubj"], ["dobj"], ["NOUN"])
+                visiter_regle(token, child, ["nsubj"], ["dobj"], ["NOUN","PROPN"])
         if (child.dep_ == "prep"):
             # nsubjpass (VERB) prep vers ADP
             clause_list = clause_list + \

@@ -4,7 +4,7 @@ class Question:
         self.stem = stem.strip()        # What color is the sky?
         self.options = options  # ["Blue", "Green", "Red"]
         self.answer = answer    # 0
-        print("creation de question : "+self.stem)
+        #print("creation de question : "+self.stem)
 
     def to_aiken(self):
         aiken = self.stem + "\n"

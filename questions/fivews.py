@@ -63,7 +63,7 @@ def find_obj_of(verb_list):
   elif (len(verb_list)>=2):
     verb=verb_list[-1]
   for token in verb.rights:
-    if token.dep_ == "dobj":
+    if token.dep_ == "dobj" or (token.dep_=="attr" and token.pos_=="NOUN"):
       dobj_token=token
       return flatten_tree(dobj_token.subtree)
 
@@ -160,7 +160,6 @@ def generate_wh(text):
     questions = set()
     for sentence in document:
         for token in nlp(sentence):
-            print(str(token))
             if (str(token) == "in"):
                 question = generate_where(document,token)
                 if(question is not None):
@@ -178,7 +177,6 @@ def generate_wh(text):
                 if(question is not None):
                     questions.add(question)
             if ((token.pos_=="PROPN" or linked_to(token,["PROPN"])) and token.dep_=="nsubj"):
-                print("generer who pour : "+str(sentence))
                 question = generate_who(document,token)
                 if(question is not None):
                     questions.add(question)
@@ -191,6 +189,7 @@ def generate(text):
     questions = set()
     
     for sentence in document.sents:
+        
         for entity in sentence.ents:
             label = entity.label_
             start = sentence.text.index(entity.text)
