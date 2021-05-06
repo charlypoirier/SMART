@@ -48,8 +48,10 @@ def replace_adjectives_with_synonyms(sentence):
     document = nlp(sentence)
     for token in document:
         if token.pos_ == "ADJ":
-            synonym = random.choice(dictionary.synonym(token.text))
-            sentence = sentence.replace(token.text, synonym)
+            synonyms = dictionary.synonym(token.text)
+            if synonyms is not None:
+                synonym = random.choice(synonyms)
+                sentence = sentence.replace(token.text, synonym)
     return sentence
 
 
@@ -57,8 +59,10 @@ def replace_adjectives_with_antonyms(sentence):
     document = nlp(sentence)
     for token in document:
         if token.pos_ == "ADJ":
-            antonym = random.choice(dictionary.antonym(token.text))
-            sentence = sentence.replace(token.text, antonym)
+            antonyms = dictionary.antonym(token.text)
+            if antonyms is not None:
+                antonym = random.choice(antonyms)
+                sentence = sentence.replace(token.text, antonym)
     return sentence
 
 
