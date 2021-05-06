@@ -76,7 +76,7 @@ def main():
     with open("questionnaire.txt", "w") as file:
         for question in questionnaire:
             file.write(question.to_aiken())
-    print("Saved to questionnaire.txt")
+    print("\nSaved to questionnaire.txt")
 
 
 if __name__ == "__main__":
