@@ -1,10 +1,11 @@
+import re
+
 class Question:
 
     def __init__(self, stem, options, answer):
-        self.stem = stem.strip()        # What color is the sky?
-        self.options = options  # ["Blue", "Green", "Red"]
-        self.answer = answer    # 0
-        #print("creation de question : "+self.stem)
+        self.stem = re.sub(r"\s+", " ", stem.capitalize()) # What color is the sky?
+        self.options = options # ["Blue", "Green", "Red"]
+        self.answer = answer # 0
 
     def to_aiken(self):
         aiken = self.stem + "\n"
