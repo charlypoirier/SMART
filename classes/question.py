@@ -15,3 +15,6 @@ class Question:
 
     def __hash__(self):
       return hash(str(self.stem))
+
+    def __eq__(self, other):
+        return self.stem==other.stem

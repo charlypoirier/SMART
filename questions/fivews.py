@@ -64,7 +64,8 @@ def find_obj_of(verb_list):
     verb=verb_list[-1]
   for token in verb.rights:
     if token.dep_ == "dobj":
-      return token
+      dobj_token=token
+      return flatten_tree(dobj_token.subtree)
 
 def extract_Verb(token):
   verb_phrase=[]
@@ -119,6 +120,14 @@ def generate_how(doc,token):
     elif (len(verb_list)==1 and verb_list[0].pos_=="AUX" ): #au present
       return Question("how "+str(verb_list[0])+" "+str(find_subj_of(verb_list)),[" "],0)
   
+def generate_who(doc,token):
+  parent= token.head
+  #while (parent.pos_ !="VERB" and parent.pos_!="AUX"):
+   # parent=parent.head
+  if (parent.pos_ =="VERB" or parent.pos_=="AUX" ): 
+    verb_list=extract_Verb(parent)
+    if (len(verb_list)==1 ): 
+        return Question("who "+str(verb_list[0])+ " "+str(find_obj_of(verb_list)),[" "],0)
 
 def generate_what(doc,token):
   parent= token.head
@@ -160,6 +169,10 @@ def generate_wh(text):
                     questions.add(question)
             if (token.pos_=="ADJ"):
                 question = generate_how(document,token)
+                if(question is not None):
+                    questions.add(question)
+            if (token.pos_=="PROPN" and token.dep_=="nsubj"):
+                question = generate_who(document,token)
                 if(question is not None):
                     questions.add(question)
 
