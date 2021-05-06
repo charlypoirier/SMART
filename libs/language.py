@@ -57,7 +57,7 @@ def tt_combi_Subj(token):
         id = []
         id.append(token)
         list_combi.append(id)
-        if (token.dep_ != "amod" and token.dep_ != "mark" and token.dep_ != "det" and token.dep_ != "compound"
+        if (token.dep_ != "amod" and token.dep_ != "mark" and token.dep_ != "det" and token.dep_ != "advmod" and token.dep_ != "compound"
                 and token.dep_ != "dative" and token.dep_ != "poss" and token.dep_ != "agent" and token.dep_ != "quantmod" and token.dep_ != "nummod"):  # amod et det sont obligatoires
             list_combi.append(vide)
         return list_combi
@@ -73,7 +73,7 @@ def tt_combi_Subj(token):
         appendtokenToList(token, left, right)
         # right.append(vide)
         list_combi = cartesian_product(left, right)
-        if (token.dep_ != "pobj" and token.dep_ != "mark" and token.dep_ != "prep" and token.dep_ != "nummod" and token.dep_ != "pcomp" and
+        if (token.dep_ != "pobj" and token.dep_ != "mark"and token.dep_ != "amod" and token.dep_ != "prep" and token.dep_ != "nummod" and token.dep_ != "pcomp" and token.dep_ != "advmod" and
                 token.dep_ != "compound" and token.dep_ != "dative" and token.dep_ != "nsubjpass" and token.dep_ != "poss" and token.dep_ != "quantmod" and token.dep_ != "agent" and token.dep_ != "expl"):  # pobj et prep sont obligatoires
             list_combi.append(vide)
         return list_combi

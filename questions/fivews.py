@@ -147,6 +147,11 @@ def generate_what(doc,token):
   elif (len(verb_list)==1 and verb_list[0].pos_=="AUX" ):
       return Question("what "+str(verb_list[0])+" "+str(find_subj_of(verb_list)),[" "],0)
 
+def linked_to(token,list_pos):
+  for rtoken in token.rights:
+    if rtoken.pos_ in list_pos:
+      return True
+
 
 def generate_wh(text):
     document = nlp(text).sents
@@ -155,6 +160,7 @@ def generate_wh(text):
     questions = set()
     for sentence in document:
         for token in nlp(sentence):
+            print(str(token))
             if (str(token) == "in"):
                 question = generate_where(document,token)
                 if(question is not None):
@@ -171,7 +177,8 @@ def generate_wh(text):
                 question = generate_how(document,token)
                 if(question is not None):
                     questions.add(question)
-            if (token.pos_=="PROPN" and token.dep_=="nsubj"):
+            if ((token.pos_=="PROPN" or linked_to(token,["PROPN"])) and token.dep_=="nsubj"):
+                print("generer who pour : "+str(sentence))
                 question = generate_who(document,token)
                 if(question is not None):
                     questions.add(question)

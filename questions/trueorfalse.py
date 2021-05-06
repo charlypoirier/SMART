@@ -12,7 +12,6 @@ def generate(text):
     text = replace_which_he_she_words(text)
     sentences = nlp(text).sents
     sentences = extract_clauses(sentences)
-    sentences = preprocessing(sentences)
     questions = set()
 
     for sentence in sentences:
@@ -37,164 +36,11 @@ def generate(text):
     return questions
 
 
-def cartesian_product(left, right):
-    if len(left) > 0 and len(right) == 0:
-        return left
-    elif len(left) == 0 and len(right) > 0:
-        return right
-    else:
-        res = []
-        for elem in left:
-            for elem2 in right:
-                res.append(elem+elem2)
-        return res
 
 
-def append_token_to_list(token, comb_l, comb_r):
-    if len(comb_l) > 0:
-        for elem in comb_l:
-            elem.append(token)
-        return
-    if len(comb_r) > 0:
-        for elem in comb_r:
-            elem.insert(0, token)
-        return
 
 
-def complete_verb(token):
-    verb_phrase = str(token)
-    left_phrase = ""
-    for leftchild in token.lefts:
-        if leftchild.dep_ == "auxpass" or leftchild.dep_ == "aux":
-            left_phrase = left_phrase+str(leftchild)+" "
-    verb_phrase = left_phrase+verb_phrase
-    for rightchild in token.rights:
-        if rightchild.dep_ == "dative":
-            verb_phrase = verb_phrase + " "+str(rightchild)
-    return verb_phrase
 
-
-def tt_comb_subj(token):
-    list_comb = []
-    vide = []
-    vide.append(' ')
-    if token.n_rights == 0 and token.n_lefts == 0:
-        id = []
-        id.append(token)
-        list_comb.append(id)
-        if (token.dep_ != "amod" and token.dep_ != "mark" and token.dep_ != "det" and token.dep_ != "compound"
-                and token.dep_ != "dative" and token.dep_ != "poss" and token.dep_ != "agent" and token.dep_ != "quantmod" and token.dep_ != "nummod"):  # amod et det sont obligatoires
-            list_comb.append(vide)
-        return list_comb
-    else:
-        left = []
-        right = []
-        for left_child in token.lefts:
-            left = cartesian_product(
-                left, tt_comb_obj(left_child))
-        for right_child in token.rights:
-            right = cartesian_product(
-                right, tt_comb_obj(right_child))
-        append_token_to_list(token, left, right)
-        # right.append(vide)
-        list_comb = cartesian_product(left, right)
-        if (token.dep_ != "pobj" and token.dep_ != "mark" and token.dep_ != "prep" and token.dep_ != "nummod" and token.dep_ != "pcomp" and
-                token.dep_ != "compound" and token.dep_ != "dative" and token.dep_ != "nsubjpass" and token.dep_ != "poss" and token.dep_ != "quantmod" and token.dep_ != "agent" and token.dep_ != "expl"):  # pobj et prep sont obligatoires
-            list_comb.append(vide)
-        return list_comb
-
-
-def tt_comb_obj(token):
-    list_comb = []
-    vide = []
-    vide.append(' ')
-    if token.n_rights == 0 and token.n_lefts == 0:
-        id = []
-        id.append(token)
-        list_comb.append(id)
-        if (token.dep_ != "dobj" and token.dep_ != "mark" and token.dep_ != "amod" and token.dep_ != "det" and token.dep_ != "nsubj"
-            and token.dep_ != "pobj" and token.dep_ != "compound" and token.dep_ != "dative" and token.dep_ != "poss" and token.dep_ != "pcomp" and token.dep_ != "expl"
-            and token.dep_ != "cc" and token.dep_ != "conj" and token.dep_ != "advmod" and token.dep_ != "nsubjpass" and token.dep_ != "nummod" and token.dep_ != "quantmod" and token.dep_ != "nmod"
-                and token.dep_ != "agent" and token.dep_ != "aux" and token.dep_ != "npadvmod" and token.dep_ != "auxpass"):  # amod et det sont obligatoires
-            list_comb.append(vide)
-        return list_comb
-    else:
-        left = []
-        right = []
-        for left_child in token.lefts:
-            left = cartesian_product(
-                left, tt_comb_obj(left_child))
-        for right_child in token.rights:
-            right = cartesian_product(
-                right, tt_comb_obj(right_child))
-        append_token_to_list(token, left, right)
-        list_comb = cartesian_product(left, right)
-        if (token.dep_ != "dobj" and token.dep_ != "expl" and token.dep_ != "aux" and token.dep_ != "quantmod" and token.dep_ != "mark" and token.dep_ != "pobj" and token.dep_ != "pcomp"
-            and token.dep_ != "prep" and token.dep_ != "nsubj" and token.dep_ != "nsubjpass" and token.dep_ != "poss" and token.dep_ != "pobj" and token.dep_ != "conj" and token.dep_ != "dative" and token.dep_ != "agent"
-                and token.dep_ != "compound" and token.dep_ != "npadvmod" and token.dep_ != "auxpass" and token.dep_ != "aux" and token.dep_ != "nmod" and token.dep_ != "attr" and token.dep_ != "nummod"):  # pobj et prep sont obligatoires
-            list_comb.append(vide)
-        return list_comb
-
-
-def remove_whitespace(obj_list):
-    if len(obj_list) > 1 and obj_list[-1] == [' ']:
-        obj_list.pop()
-    elif len(obj_list) == 0 and obj_list[0] == [' ']:
-        obj_list.pop()
-
-
-def visit_rule(token, right_child, subj_dep, obj_dep, obj_pos):
-    subject_found = False
-    clause = ""
-    verb = complete_verb(token)
-    list_subj = []
-    list_obj = []
-    list_clause = []
-    clause_list = []
-    for child in token.lefts:
-        if child.dep_ in subj_dep:
-            list_subj = tt_comb_subj(child)
-            remove_whitespace(list_subj)
-            subject_found = True
-            break
-    append_token_to_list(verb, list_subj, list_obj)
-    if subject_found == True and right_child.pos_ in obj_pos and right_child.dep_ in obj_dep:
-        list_obj = tt_comb_obj(right_child)
-        remove_whitespace(list_obj)
-        list_clause = cartesian_product(list_subj, list_obj)
-        for phrase in list_clause:
-            clause = ""
-            for word in phrase:
-                if str(word) != " ":
-                    clause = clause + str(word) + " "
-            clause_list.append(clause)
-    return clause_list
-
-
-def visit_verb(token):
-    clause_list = []
-    for child in token.rights:
-        if child.dep_ == "conj":
-            # (nsubj)  (verb) (conj vers NOUN)
-            clause_list = clause_list + \
-                visit_rule(token, child, ["nsubj"], ["conj"], ["NOUN"])
-        if child.dep_ == "dobj":
-            # (nsubj)  (verb) (dobj vers NOUN)
-            clause_list = clause_list + \
-                visit_rule(token, child, ["nsubj"], ["dobj"], ["NOUN"])
-        if child.dep_ == "prep":
-            # nsubjpass (VERB) prep vers ADP
-            clause_list = clause_list + \
-                visit_rule(token, child, ["nsubjpass"], ["prep"], ["ADP"])
-            # nsubjpass (VERB) prep vers SCONJ
-            clause_list = clause_list + \
-                visit_rule(token, child, ["nsubjpass"], ["prep"], ["SCONJ"])
-        if child.dep_ == "attr":
-            # PRON<-expl|nsubj- AUX -attr->NOUN
-            clause_list = clause_list + \
-                visit_rule(token, child, ["expl", "nsubj"], [
-                              "attr"], ["NOUN"])
-    return clause_list
 
 
 
