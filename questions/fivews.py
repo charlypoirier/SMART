@@ -138,10 +138,12 @@ def generate_what(doc,token):
 
 
 def generate_wh(text):
-    document = nlp(text)
+    document = nlp(text).sents
+    document = extract_clauses(document)
+    #document = preprocessing(document)
     questions = set()
-    for sentence in document.sents:
-        for token in sentence:
+    for sentence in document:
+        for token in nlp(sentence):
             if (str(token) == "in"):
                 question = generate_where(document,token)
                 if(question is not None):
