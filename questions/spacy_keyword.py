@@ -108,7 +108,7 @@ def generate_distractors(keywords):
             option = [t]
         elif (v == 'TIME'):
             
-            regexp = re.compile('([0-1]?[0-9]|2[0-3]):[0-5][0-9]')
+            regexp  = re.compile('([0-1]?[0-9]|2[0-3]):[0-5][0-9]')
             regexp2 = re.compile('([0-5][0-9]|[1-9])')
             if regexp.search(str(k)):
 
@@ -142,6 +142,7 @@ def generate_distractors(keywords):
         elif (v == 'DATE'):
             regexp  = re.compile('( [1-9] | [12]\d | 3[01] )')
             regexp2 = re.compile('( [1-9],| [12]\d,| 3[01],)')
+            regexp3 = re.compile('([A-Za-z]*)')
             nk = ' ' + str(k) + ' '
             if regexp.search(nk):
                 day = random.randint(1,31)
@@ -155,6 +156,8 @@ def generate_distractors(keywords):
                 day = random.randint(1,31)
                 ret2 = re.sub('( [1-9],| [12]\d,| 3[01],)',' ' +str(day) + ',', nk)
                 similar = [(ret[1:],11), (ret2[1:], 22)]
+            elif ( regexp3.search(str(k)) ):
+                similar = model.most_similar(positive=[str(k).lower()], topn=3)
             else :
                 similar = [('date1',11), ('date2', 22)]
         else  :

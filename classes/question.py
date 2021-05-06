@@ -1,9 +1,10 @@
 class Question:
 
     def __init__(self, stem, options, answer):
-        self.stem = stem        # What color is the sky?
+        self.stem = stem.strip()        # What color is the sky?
         self.options = options  # ["Blue", "Green", "Red"]
         self.answer = answer    # 0
+        #print("creation de question : "+self.stem)
 
     def to_aiken(self):
         aiken = self.stem + "\n"
@@ -11,3 +12,9 @@ class Question:
             aiken += f"{chr(ord('A')+i)}. {self.options[i]}\n"
         aiken += f"ANSWER: {chr(ord('A')+self.answer)}\n\n"
         return aiken
+
+    def __hash__(self):
+      return hash(str(self.stem))
+
+    def __eq__(self, other):
+        return self.stem==other.stem

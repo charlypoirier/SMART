@@ -25,12 +25,14 @@ def main():
     print("             INTERROGAT'IF             ")
     print("---------------------------------------")
 
-    while(True):
+    while True:
         print("Enter the path to your text file.")
+
         filepath = input("> ")
         if not os.path.isfile(filepath):
             print("Cannot find", filepath)
-        else: break
+        else:
+            break
     
     with open(filepath, "r") as file:
         text = file.read()
@@ -69,7 +71,7 @@ def main():
     elif choice == 3:
         from questions import fivews
         print("Generating questions...")
-        questionnaire = set.union(questionnaire, fivews.generate(text))
+        questionnaire = set.union(questionnaire, fivews.generate_wh(text))
 
     # Save to a file in Aikan format
     print("Saving...")
