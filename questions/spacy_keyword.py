@@ -9,8 +9,6 @@ from gensim.scripts.glove2word2vec import glove2word2vec
 import re
 from libs.language import *
 
-# TODO: Mettre ça dans gaps.py ?
-
 # voir https://github.com/KristiyanVachev/Question-Generation 
 glove_file = './data/embeddings/glove.6B.100d.txt'
 tmp_file = './data/embeddings/word2vec-glove.6B.100d.txt'

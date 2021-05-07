@@ -35,7 +35,7 @@ def main():
     while True:
         clear()
         print("┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓")
-        print("┃            INTEROGAT'IF             ┃")
+        print("┃            INTERROGAT'IF            ┃")
         print("┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛")
 
         while True:
@@ -86,7 +86,7 @@ def main():
         for question in questionnaire:
             output_file.write(question.to_aiken())
         output_file.close()
-        print("Saved to questionnaire.txt\n")
+        print("Saved to "+filepath+".aiken\n")
 
         input("Press enter to continue.")
 

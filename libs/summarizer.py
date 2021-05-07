@@ -1,3 +1,0 @@
-"""
-Text Summarizer API
-"""

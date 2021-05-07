@@ -10,6 +10,7 @@ import pytextrank
 import re
 from eazymind.nlp.eazysum import Summarizer
 key = "dd93f8cf88609e887ace3169cf6892fd"
+
 # Spacy model (sm=faster, trf=slower)
 nlp = spacy.load("en_core_web_trf")
 

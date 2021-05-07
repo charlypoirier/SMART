@@ -3,6 +3,9 @@ env/
 questionnaire.txt
 *.aiken
 
+# Heavy files
+data/embeddings
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -132,9 +135,3 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
-
-# VSCode settings
-.vscode/
-
-# Heavy files
-data/embeddings
