@@ -11,6 +11,7 @@ from libs.language import *
 
 # TODO: Mettre ça dans gaps.py ?
 
+# voir https://github.com/KristiyanVachev/Question-Generation 
 glove_file = './data/embeddings/glove.6B.100d.txt'
 tmp_file = './data/embeddings/word2vec-glove.6B.100d.txt'
 
@@ -143,6 +144,7 @@ def generate_distractors(keywords):
             regexp  = re.compile('( [1-9] | [12]\d | 3[01] )')
             regexp2 = re.compile('( [1-9],| [12]\d,| 3[01],)')
             regexp3 = re.compile('([A-Za-z]*)')
+            regexp4 = re.compile('[0-9]*')
             nk = ' ' + str(k) + ' '
             if regexp.search(nk):
                 day = random.randint(1,31)
