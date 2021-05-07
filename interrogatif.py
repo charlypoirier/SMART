@@ -21,10 +21,9 @@ os.environ["TRANSFORMERS_VERBOSITY"] = "error"
 # Main function
 def main():
 
-    print("---------------------------------------")
-    print("             INTERROGAT'IF             ")
-    print("---------------------------------------")
-
+    print("┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓")
+    print("┃            INTEROGAT'IF             ┃")
+    print("┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛")
     while(True):
         print("Enter the path to your text file.")
         filepath = input("> ")
