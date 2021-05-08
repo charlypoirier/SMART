@@ -2,6 +2,8 @@
 Automatic quiz generation for teachers and students.<br/>
 As part of the SMART project in 4th year in computer science at INSA Lyon.
 
+[Watch the trailer](https://drive.google.com/file/d/1cJHEJfIYYeMgE446lCG5DqxisWigEIg7/view?usp=sharing)
+
 ## Install a virtual environment
 
 You will need [Python3](https://www.python.org/downloads/) on your machine.
