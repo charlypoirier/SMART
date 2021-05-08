@@ -1,5 +1,5 @@
 # Interrogat'IF
-Automatic quiz generation for teachers and students.<br/>
+Automatic quiz generation for teachers, students and parents.<br/>
 As part of the SMART project in 4th year in computer science at INSA Lyon.
 
 [Watch the trailer](https://drive.google.com/file/d/1cJHEJfIYYeMgE446lCG5DqxisWigEIg7/view?usp=sharing)
